@@ -1,0 +1,2 @@
+call npm_install_content.cmd
+call npm_install_testServer.cmd

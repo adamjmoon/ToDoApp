@@ -1,0 +1,144 @@
+!!! 5
+html
+    head
+        title JS Unit Tests Results
+        link(rel='stylesheet', href='/css/mocha.css')
+    body(style='')
+        .container-fluid(style='height: 45px;')
+        #frame.container-fluid.frame(style='height: 100%;')
+            #topNav.navbar-fixed-top(style='display: none; position: fixed; right: 0; left: 0; z-index: 1030; margin-bottom: 0;')
+                .navbar-inner.row-fluid
+                    a.logoBtn(href='')
+                        h3#logo.badge.span2.logo(style='cursor: pointer; margin-left: 5px;', data-bind='click: function(){toggleMenu();}', width='90', height='44') OT JS Tests
+                    a.span1(href='./') Unit Tests
+                    a.span1(href='./benchmarks') Benchmarks
+                    a.span1(href='./coverage') Coverage
+
+                    div(style='position: absolute; right: 0; top: 0; width: 52px; height: 44px; margin: 0; !important;border-left: 1px solid #252A30 !important; cursor: pointer;')
+                    img#rightCorkCollapse.collapseAll(style='margin-left: 15px;', width='21', height='44', src='/img/menulogo.png')
+                    .well(style='display: none; position: absolute; right: 57px; top: 0px; padding: 3px !important;')
+                        .badge.count(style='cursor: pointer;', data-bind='click: function(){location.reload();}')
+                        img#refresh(src='/img/glyphicons_081_refresh.png', width='25', height='26')
+                        span.badge.badge-success.headCount(data-bind='text: totalPassed()')
+                        span.badge.badge-important.headCount(data-bind='text: totalFailed()')
+                        span.badge.badge-warning.count(style='display: block; position: absolute; right: 57px; top: 10px;', data-bind='visible: totalTests() == 0') Loading...
+            #menu.menu.nav-collapse.collapse.well(style='display: none;')
+                .collapse-inner
+                    .navbar.navbar-inverse.menu-title
+                        .navbar-inner
+                            span.badge.badge-info Theme
+                    ul.nav.nav-tabs.nav-stacked
+                        li
+                            a(href='', data-bind='click: function(){setTheme("curelean");}') Cerulean
+                        li
+                            a(href='', data-bind='click: function(){setTheme("cosmo");}') Cosmo
+                        li
+                            a(href='', data-bind='click: function(){setTheme("cyborg");}') Cyborg
+                        li
+                            a(href='', data-bind='click: function(){setTheme("superhero");}') Superhero
+                        li
+                            a(href='', data-bind='click: function(){setTheme("customTheme");}') Custom
+                        ul.nav.nav-tabs.nav-stacked(style='display: none;', data-bind='visible: currentTheme() ==="customTheme"')
+                            li
+                                a(href='', data-bind='click: function(){window.ThemeManager.resetCustomTheme();}')
+                                    .navbar.navbar-inverse.menu-title
+                                        .navbar-inner
+                                            span.badge.badge-inverse Reset Custom Theme
+                            li
+                                .navbar.navbar-inverse.menu-title
+                                    .navbar-inner
+                                        span.badge.badge-info Body Font Color
+                                input.color.pull-left(data-bind='value: cto.bodyFontColor')
+                            li
+                                .navbar.navbar-inverse.menu-title
+                                    .navbar-inner
+                                        span.badge.badge-info Body Background Color
+                                input.color.pull-left(data-bind='value: cto.bodyBackgroundColor')
+                            li
+                                .navbar.navbar-inverse.menu-title
+                                    .navbar-inner
+                                        span.badge.badge-info Body Gradient From Color
+                                input.color.pull-left(data-bind='value: cto.bodyGradientFromColor')
+                            li
+                                .navbar.navbar-inverse.menu-title
+                                    .navbar-inner
+                                        span.badge.badge-info Body Gradient To Color
+                                input.color.pull-left(data-bind='value: cto.bodyGradientToColor')
+                            li
+                                .navbar.navbar-inverse.menu-title
+                                    .navbar-inner
+                                        span.badge.badge-info Info Color
+                                input.color.pull-left(data-bind='value: cto.infoColor')
+                            li
+                                .navbar.navbar-inverse.menu-title
+                                    .navbar-inner
+                                        span.badge.badge-info Code Color
+                                input.color.pull-left(data-bind='value: cto.codeColor')
+                            li
+                                .navbar.navbar-inverse.menu-title
+                                    .navbar-inner
+                                        span.badge.badge-info Code Font Family
+                                input.pull-left(data-bind='value: cto.codeFontFamily')
+                            li
+                                .navbar.navbar-inverse.menu-title
+                                    .navbar-inner
+                                        span.badge.badge-info Font Size
+                                input.pull-left(data-bind='value: cto.fontSize')
+                            li
+                                .navbar.navbar-inverse.menu-title
+                                    .navbar-inner
+                                        span.badge.badge-info Hover Color
+                                input.color.pull-left(data-bind='value: cto.hoverColor')
+                            li
+                                .navbar.navbar-inverse.menu-title
+                                    .navbar-inner
+                                        span.badge.badge-info Well Background Color
+                                input.color.pull-left(data-bind='value: cto.wellBackgroundColor')
+                            li
+                                .navbar.navbar-inverse.menu-title
+                                    .navbar-inner
+                                        span.badge.badge-info Top Nav Background Color
+                                input.color.pull-left(data-bind='value: cto.navBackgroundColor')
+                            li
+                                .navbar.navbar-inverse.menu-title
+                                    .navbar-inner
+                                        span.badge.badge-info Suite Heading Background Color
+                                input.color.pull-left(data-bind='value: cto.navBarInnerBackgroundColor')
+                            li
+                                .navbar.navbar-inverse.menu-title
+                                    .navbar-inner
+                                        span.badge.badge-info Inverse Color
+                                input.color.pull-left(data-bind='value: cto.inverseColor')
+                            li
+                                .navbar.navbar-inverse.menu-title
+                                    .navbar-inner
+                                        span.badge.badge-info Success Color
+                                input.color.pull-left(data-bind='value: cto.successColor')
+                            li
+                                .navbar.navbar-inverse.menu-title
+                                    .navbar-inner
+                                        span.badge.badge-info Error Color
+                                input.color.pull-left(data-bind='value: cto.errorColor')
+                            li
+                                .navbar.navbar-inverse.menu-title
+                                    .navbar-inner
+                                        span.badge.badge-info Completed Color
+                                input.color.pull-left(data-bind='value: cto.completedColor')
+                            li
+                                .navbar.navbar-inverse.menu-title
+                                    .navbar-inner
+                                        span.badge.badge-info Table Border Color
+                                input.color.pull-left(data-bind='value: cto.tableBorderColor')
+                            li
+                                .navbar.navbar-inverse.menu-title
+                                    .navbar-inner
+                                        span.badge.badge-info Radius
+                                input.pull-left(data-bind='value: cto.radius')
+                            li
+                                .navbar.navbar-inverse.menu-title
+                                    .navbar-inner
+                                        span.badge.badge-info Badge Radius
+                                input.pull-left(data-bind='value: cto.badgeRadius')
+
+            block content
+        script(type='text/javascript', src='/js/vendorUnitTestScripts.js')

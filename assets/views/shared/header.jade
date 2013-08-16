@@ -1,0 +1,15 @@
+div.navbar.navbar-fixed-top
+    div.container
+        button.navbar-toggle(type="button"
+        data-toggle="collapse"
+        data-target=".primary-navbar-collapse")
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+        a.navbar-brand(href="./", alt="ToDo")
+            span.logo O1
+        div.nav-collapse.collapse.primary-navbar-collapse
+            ul.nav.navbar-nav(data-bind='foreach: router.visibleRoutes')
+                li(data-bind='css: { active: isActive }')
+                    a(data-bind='attr: { href: hash }, html: name')
+

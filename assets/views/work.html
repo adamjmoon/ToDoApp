@@ -1,0 +1,49 @@
+
+<section id="todosWork" class="row">
+  <section class="col-lg-12">
+    <header id="header">
+      <h1>work todos</h1>
+      <input id="new-todo" data-bind="value: current, valueUpdate: 'afterkeydown', enterKey: add" placeholder="What needs to be done?" autofocus="autofocus"/>
+    </header>
+    <header id="todoHeader" style="z-index: 2000;height:120px;" class="navbar navbar-inverse navbar-fixed-top container">
+      <div class="navbar-inner row">
+        <div id="footer" data-bind="visible: completedCount() || remainingCount()" style="display: none;" class="col-lg-12"><span id="todo-count" class="col-lg-4"><span data-bind="text: remainingCount" class="badge badge-warning">0</span><span data-bind="text: ' ' + getLabel( remainingCount ) + ' left'"></span></span>
+          <ul id="filters" class="pull-right">
+            <li><a data-bind="css: { selected: showMode() == &quot;all&quot; }" href="#/all" class="selected badge badge-info">All</a></li>
+            <li><a data-bind="css: { selected: showMode() == &quot;active&quot; }" href="#/active" class="badge badge-warning">Active</a></li>
+            <li><a data-bind="css: { selected: showMode() == &quot;completed&quot; }" href="#/completed" class="badge badge-success">Completed</a></li>
+          </ul>
+        </div>
+        <h1>todos</h1>
+        <div class="currentToDoHeader row"></div>
+        <div class="currentToDo row">
+          <div id="currentToDo" class="currentToDo col-lg-12">
+            <input id="toggle-all" data-bind="checked: allCompleted" type="checkbox" class="pull-left"/>
+            <label for="toggle-all">Mark all as complete</label>
+            <input id="new-todo" data-bind="value: current, valueUpdate: &quot;afterkeydown&quot;, enterKey: add" placeholder="What needs to be done?" autofocus="" class="col-lg-11 offset-1"/>
+          </div>
+        </div>
+      </div>
+    </header>
+    <div style="height:182px;" class="col-lg-12"></div>
+    <div class="container">
+      <div id="frame" style="overflow-y:auto;" class="row">
+        <section id="todoapp" class="col-lg-12">
+          <section id="main">
+            <ul id="todo-list" data-bind="foreach: filteredTodos">
+              <li data-bind="css: { completed: completed, editing: editing }" class="row">
+                <div class="view">
+                  <input data-bind="checked: completed" type="checkbox" class="toggle"/>
+                  <label data-bind="text: title, event: { dblclick: $root.editItem }"></label>
+                  <button data-bind="click: $root.remove" class="destroy"></button>
+                </div>
+                <input data-bind="value: title, valueUpdate: &quot;afterkeydown&quot;, enterKey: $root.stopEditing, selectAndFocus: editing, event: { blur: $root.stopEditing }" class="edit"/>
+              </li>
+            </ul>
+          </section>
+        </section>
+      </div>
+    </div>
+    <button data-bind="visible: completedCount, click: removeCompleted" style="position: fixed; bottom: 0px; left: 0px;display: none;margin-top:10px;" class="clearCompleted col-lg-12 col-12 btn btn-small">Clear completed</button>
+  </section>
+</section>

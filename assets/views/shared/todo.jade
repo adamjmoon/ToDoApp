@@ -1,0 +1,38 @@
+header#todoHeader.navbar.navbar-inverse.navbar-fixed-top.container(style="z-index: 2000;height:120px;")
+    div.navbar-inner.row
+        div#footer.col-lg-12(data-bind='visible: completedCount() || remainingCount()', style='display: none;')
+            span#todo-count.col-lg-4
+                span.badge.badge-warning(data-bind='text: remainingCount') 0
+                span(data-bind="text: ' ' + getLabel( remainingCount ) + ' left'")
+            ul#filters.pull-right
+              li
+                a.selected.badge.badge-info(data-bind='css: { selected: showMode() == "all" }', href='#/all') All
+              li
+                a.badge.badge-warning(data-bind='css: { selected: showMode() == "active" }', href='#/active') Active
+              li
+                a.badge.badge-success(data-bind='css: { selected: showMode() == "completed" }', href='#/completed') Completed
+        h1 todos
+        div.currentToDoHeader.row
+        div.currentToDo.row
+            div#currentToDo.currentToDo.col-lg-12
+                input#toggle-all.pull-left(data-bind='checked: allCompleted', type='checkbox')
+                label(for='toggle-all') Mark all as complete
+                input#new-todo.col-lg-11.offset-1(data-bind='value: current, valueUpdate: "afterkeydown", enterKey: add', placeholder='What needs to be done?', autofocus='')
+
+
+div.col-lg-12(style="height:182px;")
+
+div.container
+    div#frame.row(style='overflow-y:auto;')
+        section.col-lg-12#todoapp
+          section#main
+            ul#todo-list(data-bind='foreach: filteredTodos')
+              li.row(data-bind='css: { completed: completed, editing: editing }')
+                .view
+                  input.toggle(data-bind='checked: completed', type='checkbox')
+                  label(data-bind='text: title, event: { dblclick: $root.editItem }')
+                  button.destroy(data-bind='click: $root.remove')
+                input.edit(data-bind='value: title, valueUpdate: "afterkeydown", enterKey: $root.stopEditing, selectAndFocus: editing, event: { blur: $root.stopEditing }')
+
+button.clearCompleted.col-lg-12.col-12.btn.btn-small(data-bind='visible: completedCount, click: removeCompleted', style='position: fixed; bottom: 0px; left: 0px;display: none;margin-top:10px;')
+    | Clear completed

@@ -1,0 +1,13 @@
+{
+    "name":"UnitTestServer",
+    "version":"1.0.0",
+    "dependencies":{
+        "growl":"latest",
+        "express":"latest",
+        "jade":"latest",
+        "walkdir":"latest"
+    },
+    "devDependencies":{
+
+    }
+}
