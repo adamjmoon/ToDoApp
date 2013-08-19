@@ -80,7 +80,7 @@ window.ThemeManager = (function () {
     themeManager['curelean'].badgeSuccess = "#669900";
     themeManager['curelean'].badgeWarning = "#f80";
     themeManager['curelean'].codeColor = "#fff";
-    themeManager['curelean'].hoverColor = "#33b5e5";
+    themeManager['curelean'].hoverColor = "#0a1366";
     themeManager['curelean'].wellBackgroundColor = "#0a1366";
     themeManager['curelean'].navBackgroundColor = "#4cc6ef";
     themeManager['curelean'].navBarInnerBackgroundColor = "#0a1366";
@@ -466,7 +466,7 @@ window.ThemeManager = (function () {
             + "body .frame .menu.collapse{float:left;width:300px}.menu{margin:0 2px 0 0!important;}body .frame .menu .navbar .navbar-inner{font-size:1.1em;line-height:23px;text-align:center;border-right:0}body .frame .menu .nav-stacked{padding:0}body .frame .menu .nav-stacked{margin:0!important}body .frame .menu .nav-stacked li input{padding:0!important;margin:0!important}body .frame .view{height:100%;overflow:auto;}body .frame .view .navbar .navbar-inner .btn-navbar{display:block;float:left}body .frame .view #content{text-align:justify}code.well{padding:1px!important}a:hover,a:focus{text-decoration:none!important}"
             + ".suiteDesc{padding:2px!important; height: 55px; margin-bottom: 2px !important;}.run-again{margin-left:4px!important}.navbar .btn,.navbar .btn-group{margin-top:10px} div.js{overflow-x: auto;} div.coffee{overflow-x: auto;} div.results{ overflow-x: auto !important;} pre.well {border: none;overflow-x: auto;}.frame{overflow-y: auto !important;}"
             + ".count{border: 1px solid #fff; margin: 0px 0 0px 0 !important;}.autoOverFlow{overflow-x:auto;}"
-            + ".headCount{border: 1px solid #fff; height:26px; width: 24px; line-height: 23px !important; margin: 0px 0 0px 0 !important; text-align:center;}.autoOverFlow{overflow-x:auto;}"
+            + ".headCount{border: 1px solid #fff; height:26px; width: 24px; line-height: 23px !important; margin: 0px 1px 0px 1px !important; text-align:center;}.autoOverFlow{overflow-x:auto;}"
             + ".nicescroll-rails{margin-top:45px !important;} #mocha-stats{display: none;}"
             + "a.logoBtn:active {height: 100%;-webkit-transform: rotate(180deg);-webkit-transition: all .5s linear;}"
             + ".collapseAll {-webkit-transform: rotate(0deg);-webkit-transition: all .5s linear;}"
@@ -549,7 +549,7 @@ define("Spy", [], function () {
     };
 });
 define("Suite", ['Test', 'benchmark', 'SuiteViewModel'], function (Test, Benchmark, sVM) {
-    function suite(desc, func, framework) {
+    function suite(desc, jsFunc, framework) {
         "use strict";
         var self = this;
         self.vm, self.jsContext;
@@ -600,11 +600,11 @@ define("Suite", ['Test', 'benchmark', 'SuiteViewModel'], function (Test, Benchma
         self.map = function () {
             self.vm = new sVM();
             self.vm.suiteDesc(desc);
-            self.vm.jsContextStr(func.toString());
+            self.vm.jsContextStr(jsFunc.toString());
             self.vm.coffeeContextStr(self.highlight(Js2coffee.build(self.vm.jsContextStr())));
             self.vm.jsContextStr(self.highlight(self.vm.jsContextStr()));
-            self.jsContext = new func();
-            self.setupContextBreakdown(self.jsContext, func.name);
+            self.jsContext = new jsFunc();
+            self.setupContextBreakdown(self.jsContext, jsFunc.name);
         };
 
         self.map(desc);
@@ -645,7 +645,7 @@ define("Suite", ['Test', 'benchmark', 'SuiteViewModel'], function (Test, Benchma
         }
 
         self.addTestWithBenchmarks = function (shouldEqual, testFunc, name, defer) {
-            var test = new Test(shouldEqual, testFunc, new js(), name);
+            var test = new Test(shouldEqual, testFunc, new jsFunc(), name);
             if (!defer) {
                 self.processTest(test);
             }
@@ -666,7 +666,7 @@ define("Suite", ['Test', 'benchmark', 'SuiteViewModel'], function (Test, Benchma
             }
             else {
                 self.vm.benchmarkSuite.add(test.expression, function () {
-                        func(test.context);
+                        testFunc(test.context);
                     },
                     { 'async': true, 'queued': true, 'minSamples': 100});
             }
@@ -714,7 +714,7 @@ define("SuiteView", ['UnitTestFrameworkManager'], function (utfm) {
         self.unitTestFrameworkManager = new utfm();
         self.unitTestFrameworkManager.init();
         self.menu = document.getElementById('menu');
-        self.view = document.getElementById('hitchscriptView');
+        self.view = document.getElementById('view');
         self.totalTests = new ko.observable(0);
         self.totalPassed = new ko.observable(0);
         self.totalFailed = new ko.observable(0);
@@ -736,17 +736,15 @@ define("SuiteView", ['UnitTestFrameworkManager'], function (utfm) {
         }
 
         self.setMenuHeight = function () {
-            var menu = document.getElementById('menu');
-            var view = document.getElementById('menu');
-            if (view.scrollHeight > window.innerHeight) {
-                if (view.scrollHeight > self.menu.scrollHeight) {
-                    menu.style.height = self.view.scrollHeight - 45 + 'px';
+
+            if (self.view.scrollHeight > window.innerHeight) {
+                if (self.view.scrollHeight > self.menu.scrollHeight) {
+                    self.menu.style.height = self.view.scrollHeight - 45 + 'px';
                 }
             }
             else {
-                menu.style.height = window.innerHeight - 45 + 'px';
+                self.menu.style.height = window.innerHeight - 45 + 'px';
             }
-
 
         };
 
@@ -754,8 +752,8 @@ define("SuiteView", ['UnitTestFrameworkManager'], function (utfm) {
 
             suite.vm.num = self.suites().length + 1;
             self.suites.push(suite.vm);
-            if (self.suites().length === 1) {
-                self.show();
+            if (self.suites().length === 1 && self.unitTestFrameworkManager.getFramework() === 'itchcork') {
+                self.bindView();
             }
 
             suite.vm.benchmarksDone.subscribe(function (newValue) {
@@ -774,11 +772,10 @@ define("SuiteView", ['UnitTestFrameworkManager'], function (utfm) {
             self.totalFailed(self.totalFailed() + 1);
         };
 
-        self.show = function () {
-            ko.applyBindings(self, document.getElementById('frame'));
+        self.bindView = function () {
 
+            ko.applyBindings(self, document.getElementById('frame'));
             self.setMenuHeight();
-            self.toggleMenu();
             require([self.vendorRoot() + 'jscolor'], function () {
                 jscolor.init();
             });
@@ -793,14 +790,13 @@ define("SuiteView", ['UnitTestFrameworkManager'], function (utfm) {
 
         self.toggleMenu = function () {
             var menu = document.getElementById('menu');
-            if (menu.style.display == 'block') {
-                $('#menu').hide();
+            if (menu.style.display != 'none') {
+                menu.style.display = 'none';
             } else {
-                $('#menu').show();
+                menu.style.display = 'block';
             }
-
-
         };
+
 
         self.setupNiceScroll = function () {
             window.scrollTo(0, 0);
@@ -991,7 +987,7 @@ require(['https://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js', 'https://
 
     require(['SuiteView'], function (sv) {
         window.suiteView = new sv();
-        window.suiteView.unitTestFrameworkManager.set('mocha');
+
         var context = '';
         if (window.location.pathname && window.location.pathname.length > 1)
             context = window.location.pathname.split('/')[1];
@@ -1039,81 +1035,95 @@ require(['https://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js', 'https://
                         });
                     }
                     if (window.location.pathname === '/benchmarks') {
+                        window.suiteView.unitTestFrameworkManager.set('itchcork');
                         require(['itchcork'], function () {
                                 "use strict";
                                 $.get('/benchmarkList', function (benchmarks) {
                                     require(benchmarks, function () {
-                                        window.suiteView.show();
+                                        //window.suiteView.bindView();
                                     });
                                 });
                             }
                         );
                     } else {
-                        require(['chai', 'sinon-chai', 'mocha', 'itchcork'], function (chai, sinonChai) {
-                            try {
-                                if (window.location.search) {
-                                    var array = window.location.search.split('?');
-                                    var spec = array[1];
-                                    runMocha([spec], postResults, $);
-                                } else {
-                                    $.get('/specs', function (specs) {
-                                        require(specs, function () {
-                                            console.log(mocha);
+                        window.suiteView.unitTestFrameworkManager.set('mocha');
+                        require(['mocha', 'itchcork'], function () {
+                            "use strict";
+                            require(['chai', 'sinon-chai'], function (chai, sinonChai) {
+                                try {
+                                    if (window.location.search) {
+                                        var array = window.location.search.split('?');
+                                        var spec = array[1];
+                                        runMocha([spec], postResults, $);
+                                    } else {
+                                        $.get('/specs', function (specs) {
+
                                             runMocha(specs, postResults, $);
+
                                         });
-                                    });
+                                    }
+                                } catch (ex) {
+                                    console.log(ex);
                                 }
-                            } catch (ex) {
-                                console.log(ex);
-                            }
 
-                            function runMocha(specs, postResults, $) {
-                                chai.use(sinonChai);
-                                var assert = chai.assert;
-                                var should = chai.should();
-                                mocha.setup('bdd');
-                                mocha.reporter('html');
+                                function runMocha(specs, postResults, $) {
+                                    //chai.use(sinonChai);
+                                    //                                var assert = chai.assert;
+                                    //                                var should = chai.should();
 
-                                if (window.mochaPhantomJS) {
-                                    mochaPhantomJS.run();
-                                }
-                                else {
-                                    var runner = mocha.run();
 
-                                    runner.on('end', function () {
-                                        window.suiteView.totalTests(runner.total);
-                                        window.suiteView.totalPassed(runner.total - runner.failures);
-                                        window.suiteView.totalFailed(runner.failures);
-                                        _.each(runner.suite.suites,
-                                            function (s) {
-                                                require([s.title], function (c) {
-                                                    var suite = new window.ItchCork.Suite(s.title, c, "mocha");
+                                    if (window.mochaPhantomJS) {
+                                        mochaPhantomJS.run();
+                                    }
+                                    else {
+                                        mocha.checkLeaks();
+
+                                        mocha.globals(['jQuery']);
+                                        mocha.run();
+                                        mocha.setup('bdd');
+                                        mocha.reporter('html');
+                                        require(specs, function () {
+                                            var runner = mocha.run();
+
+                                            runner.on('end', function () {
+                                                window.suiteView.totalTests(runner.total);
+                                                window.suiteView.totalPassed(runner.total - runner.failures);
+                                                window.suiteView.totalFailed(runner.failures);
+                                                _.each(runner.suite.suites,
+                                                    function (s) {
+                                                        require([s.title], function (c) {
+                                                            //var suite = new window.ItchCork.Suite(s.title, c, "mocha");
+                                                        });
+                                                    });
+                                                var suites = $("ul#mocha-report li.suite ul");
+                                                $("#collapse").click(function () {
+                                                    $(suites).each(function (index, element) {
+                                                        element.hidden = true;
+                                                    });
+                                                    $("#collapse").hide();
+                                                    $("#expand").show();
                                                 });
-                                            });
-                                        var suites = $("ul#mocha-report li.suite ul");
-                                        $("#collapse").click(function () {
-                                            $(suites).each(function (index, element) {
-                                                element.hidden = true;
-                                            });
-                                            $("#collapse").hide();
-                                            $("#expand").show();
-                                        });
-                                        $("#expand").click(function () {
-                                            $(suites).each(function (index, element) {
-                                                element.hidden = false;
-                                            });
-                                            $("#expand").hide();
+                                                $("#expand").click(function () {
+                                                    $(suites).each(function (index, element) {
+                                                        element.hidden = false;
+                                                    });
+                                                    $("#expand").hide();
 
-                                            $("#collapse").show();
+                                                    $("#collapse").show();
+                                                });
+                                                postResults(runner.stats, true, function () {
+                                                    }
+                                                );
+                                                window.suiteView.bindView();
+                                            });
                                         });
-                                        postResults(runner.stats, true, function () {
-                                            }
-                                        );
-                                        window.suiteView.show();
-                                    });
+
+
+                                    }
                                 }
-                            }
+                            });
                         });
+
                     }
 
                 });

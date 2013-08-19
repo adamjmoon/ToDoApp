@@ -1,10 +1,10 @@
-<div id="hitchscriptView" class="view container-fluid" style="display: none;" data-bind="visible: suites().length>0">
+<div id="view" class="view container-fluid" style="display: none;" data-bind="'visible': suites().length > 0">
     <div class="accordion" id="suiteListAccordian" data-bind="'foreach': suites">
         <div class="accordion-group container-fluid">
             <div class="navbar navbar-inverse">
                 <div class="accordion-heading">
 
-                    <div class="navbar-inner suiteDesc autoOverFlow container-fluid collapseToggle"
+                    <div class="navbar-inner suiteDesc autoOverFlow collapseToggle container-fluid"
                          data-parent="#suiteListAccordian" data-toggle="collapse"
                          data-bind="attr: {'data-target': '.suite' + num}">
 

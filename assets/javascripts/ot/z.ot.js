@@ -1,11 +1,11 @@
-define("OT", ['util', 'bindingHandlers'], function (Util, BindingHandlers) {
+define("OT", ['util', 'bindingHandlers', 'dataservice'], function (Util, BindingHandlers,dataservice) {
 
-    var ot = function() {
-        var self = this;
-        this.Util =  new Util();
-        this.BindingHandlers = new BindingHandlers();
+    var ot = {
+        Util:  new Util(),
+        BindingHandlers: new BindingHandlers(),
+        DataService: new dataservice()
+    }
 
-    };
-
-    return new ot();
+    window.OT = ot;
+    return ot;
 });

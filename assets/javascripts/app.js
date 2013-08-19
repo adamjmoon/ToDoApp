@@ -36,11 +36,11 @@ define("InMemory", function () {
                 return self[key];
             };
             this.post = function (key, item) {
-                self[key] = ko.utils.toJSON(item);
+                self[key] = ko.toJSON(item);
                 return self[key];
             };
             this.put = function (key, item) {
-                self[key] = ko.utils.toJSON(item);
+                self[key] =ko.toJSON(item);
                 return self[key];
             };
         };
@@ -284,17 +284,17 @@ define("ot/model",['OT'], function (OT) {
         self.apiRoute = route;
     }
 
-    Model.prototype.get = function () {
-            return OT.DataStore.get(self.apiRoute);
+    Model.prototype.get = function get() {
+            return OT.DataService.get(self.apiRoute);
         };
-    Model.prototype.post = function (data) {
-            return OT.DataStore.post(self.apiRoute, data);
+    Model.prototype.post = function post(data) {
+            return OT.DataService.post(self.apiRoute, data);
         };
-    Model.prototype.put = function (data) {
-            return OT.DataStore.put(self.apiRoute, data);
+    Model.prototype.put = function put(data) {
+            return OT.DataService.put(self.apiRoute, data);
         };
 
-    return model;
+    return Model;
 });
 define("util", function () {
     function util() {
@@ -390,16 +390,16 @@ define("viewModelMap", function () {
     return viewModelMap;
 });
 
-define("OT", ['util', 'bindingHandlers'], function (Util, BindingHandlers) {
+define("OT", ['util', 'bindingHandlers', 'dataservice'], function (Util, BindingHandlers,dataservice) {
 
-    var ot = function() {
-        var self = this;
-        this.Util =  new Util();
-        this.BindingHandlers = new BindingHandlers();
+    var ot = {
+        Util:  new Util(),
+        BindingHandlers: new BindingHandlers(),
+        DataService: new dataservice()
+    }
 
-    };
-
-    return new ot();
+    window.OT = ot;
+    return ot;
 });
 define('todo', function () {
     "use strict";

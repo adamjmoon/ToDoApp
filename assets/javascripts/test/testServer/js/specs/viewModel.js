@@ -2,7 +2,7 @@
 define(['viewModel'], function(c) {
   var s;
   s = new window.ItchCork.Suite('viewModel tests', c, 'mocha');
-  return describe("viewModel", function() {
+  describe("viewModel", function() {
     var context, dataItem, i;
     context = new c();
     i = 1;
@@ -12,8 +12,8 @@ define(['viewModel'], function(c) {
       email: "b",
       valid: true
     };
-    return it("should have ko observable property -> id", function() {
-      i.should.equal(1);
+    it("should have ko observable property -> id", function() {
+      return i.should.equal(1);
     });
   });
 });

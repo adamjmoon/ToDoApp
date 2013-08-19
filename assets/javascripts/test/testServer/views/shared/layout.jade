@@ -7,21 +7,27 @@ html
         .container-fluid(style='height: 45px;')
         #frame.container-fluid.frame(style='height: 100%;')
             #topNav.navbar-fixed-top(style='display: none; position: fixed; right: 0; left: 0; z-index: 1030; margin-bottom: 0;')
-                .navbar-inner.row-fluid
+                .navbar-inner
                     a.logoBtn(href='')
-                        h3#logo.badge.span2.logo(style='cursor: pointer; margin-left: 5px;', data-bind='click: function(){toggleMenu();}', width='90', height='44') OT JS Tests
-                    a.span1(href='./') Unit Tests
-                    a.span1(href='./benchmarks') Benchmarks
-                    a.span1(href='./coverage') Coverage
+                        img#logo.logo(src='/img/hitchscript_logo.png', style='cursor: pointer; margin-left: 5px;', data-bind='click: function(){toggleMenu();}', width='90', height='44')
 
-                    div(style='position: absolute; right: 0; top: 0; width: 52px; height: 44px; margin: 0; !important;border-left: 1px solid #252A30 !important; cursor: pointer;')
-                    img#rightCorkCollapse.collapseAll(style='margin-left: 15px;', width='21', height='44', src='/img/menulogo.png')
-                    .well(style='display: none; position: absolute; right: 57px; top: 0px; padding: 3px !important;')
+                    div(style='position: absolute; left: 150px; top: 0px; padding: 3px !important;')
+                        ul.nav.nav-pills
+                            li.active
+                                a(href='./') Unit Tests
+                            li
+                                a(href='./benchmarks') Benchmarks
+                            li
+                                a(href='./coverage') Coverage
+
+                    .well(style='position: absolute; right: 57px; top: 0px; padding: 3px !important;')
                         .badge.count(style='cursor: pointer;', data-bind='click: function(){location.reload();}')
-                        img#refresh(src='/img/glyphicons_081_refresh.png', width='25', height='26')
+                            img#refresh(src='/img/glyphicons_081_refresh.png', width='25', height='26')
                         span.badge.badge-success.headCount(data-bind='text: totalPassed()')
-                        span.badge.badge-important.headCount(data-bind='text: totalFailed()')
+                        span.badge.badge-important.headCount(data-bind='text: totalFailed(), visible: totalFailed() > 0')
                         span.badge.badge-warning.count(style='display: block; position: absolute; right: 57px; top: 10px;', data-bind='visible: totalTests() == 0') Loading...
+                    div(style='position: absolute; right: 0px; top: 0px; width: 52px; height: 44px; margin: 0px; cursor: pointer; border-left-width: 1px !important; border-left-style: solid !important; border-left-color: rgb(37, 42, 48) !important;', data-bind='visible: suites().length>0,click: collapseAll')
+                        img#rightCorkCollapse.collapseAll(style='margin-left: 15px;',data-bind='click: function(){collapseAll();}', width='21', height='44', src='/img/menulogo.png')
             #menu.menu.nav-collapse.collapse.well(style='display: none;')
                 .collapse-inner
                     .navbar.navbar-inverse.menu-title

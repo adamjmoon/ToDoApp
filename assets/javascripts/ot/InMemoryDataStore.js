@@ -8,11 +8,11 @@ define("InMemory", function () {
                 return self[key];
             };
             this.post = function (key, item) {
-                self[key] = ko.utils.toJSON(item);
+                self[key] = ko.toJSON(item);
                 return self[key];
             };
             this.put = function (key, item) {
-                self[key] = ko.utils.toJSON(item);
+                self[key] =ko.toJSON(item);
                 return self[key];
             };
         };
