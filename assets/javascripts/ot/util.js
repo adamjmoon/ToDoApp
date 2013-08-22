@@ -30,12 +30,20 @@ define("util", function () {
         };
 
         Function.prototype.extends = function (parent) {
-            for (var key in parent) {
-                this[key] = parent[key];
+            if (parent instanceof Function) {
+                var parentInstance = new parent();
+                for (var key in parentInstance) {
+                    this[key] = parentInstance[key];
+                }
             }
+            else {
+                for (var key in parent) {
+                    this[key] = parent[key];
+                }
+            }
+
             return this;
         }
-
     }
 
     return util;

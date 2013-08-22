@@ -1,0 +1,42 @@
+
+<header id="todoHeader" style="height: 120px !important;top:52px;" class="navbar navbar-inverse navbar-fixed-top container">
+  <div class="navbar-inner row">
+    <div data-bind="visible: completedCount() || remainingCount()" style="display: none;" class="col-md-12 visible-xs"><span id="todo-count" class="col-md-4"><span data-bind="text: remainingCount" class="badge badge-warning">0</span><span data-bind="text: ' ' + getLabel( remainingCount ) + ' left'"></span></span>
+      <ul id="filters">
+        <li><a data-bind="css: { selected: showMode() =='all' }, attr: { href: window.location.hash.split('/')[0] + '/all' }" class="selected">All</a></li>
+        <li><a data-bind="css: { selected: showMode() == 'active' }, attr: { href: window.location.hash.split('/')[0] + '/active' }">Active</a></li>
+        <li><a data-bind="css: { selected: showMode() == 'completed' }, attr: { href: '/' + window.location.hash.split('/')[0] + '/completed' }">Completed</a></li>
+      </ul>
+    </div>
+    <h1 data-bind="text: name"></h1>
+  </div>
+  <div class="currentToDoHeader"></div>
+  <div class="currentToDo">
+    <div id="currentToDo" class="col-md-12">
+      <input id="toggle-all" data-bind="checked: allCompleted" type="checkbox"/>
+      <label for="toggle-all">Mark all as complete</label>
+      <input id="new-todo" data-bind="value: current, valueUpdate: 'afterkeydown', enterKey: add" placeholder="What needs to be done?" autofocus="" class="col-md-11 col-md-offset-2"/>
+    </div>
+  </div>
+</header>
+<div class="container framePushDown"></div>
+<div id="frame" class="container">
+  <div id="todoapp" data-bind="style:{'max-height': maxHeight}" style="overflow-y:auto;max-height: 600px;height: 100%" class="row">
+    <ul id="todo-list" data-bind="foreach: filteredTodos" class="col-md-12">
+      <li data-bind="css: { completed: completed, editing: editing }">
+        <input data-bind="checked: completed" type="checkbox" class="toggle"/>
+        <label data-bind="text: title, event: { dblclick: $root.editItem }"></label>
+        <button data-bind="click: $root.remove" class="destroy"></button>
+        <input data-bind="value: title, valueUpdate: &quot;afterkeydown&quot;, enterKey: $root.stopEditing, selectAndFocus: editing, event: { blur: $root.stopEditing }" class="edit"/>
+      </li>
+    </ul>
+  </div>
+  <div id="footer" data-bind="visible: completedCount() || remainingCount()" style=""><span id="todo-count"><strong data-bind="text: remainingCount">1</strong><span data-bind="text: getLabel( remainingCount )">item</span>left</span>
+    <ul id="filters">
+      <li><a data-bind="css: { selected: showMode() =='all' }, attr: { href: window.location.hash.split('/')[0] + '/all' }" class="selected">All</a></li>
+      <li><a data-bind="css: { selected: showMode() == 'active' }, attr: { href: window.location.hash.split('/')[0] + '/active' }">Active</a></li>
+      <li><a data-bind="css: { selected: showMode() == 'completed' }, attr: { href: '/' + window.location.hash.split('/')[0] + '/completed' }">Completed</a></li>
+    </ul>
+  </div>
+</div>
+<button data-bind="visible: completedCount, click: removeCompleted" style="position: fixed; bottom: 0px; left: 0px;display: none;margin-top:10px;" class="clearCompleted col-md-12 col-xs-12 btn btn-small">Clear completed (<span data-bind="text: completedCount">0</span>)</button>

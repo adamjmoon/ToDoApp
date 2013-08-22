@@ -1,0 +1,14 @@
+nav.navbar.navbar-default(role='navigation')
+    .navbar-header
+        button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-ex1-collapse')
+            span.sr-only Toggle navigation
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+        a.navbar-brand(data-bind="attr: { href: router.navigationModel()[0].hash }") Todo Durandal
+    .collapse.navbar-collapse.navbar-ex1-collapse
+        ul.nav.navbar-nav(data-bind="foreach: router.navigationModel")
+            li(data-bind='css: { active: isActive }')
+                a(data-bind='attr: { href: hash }, html: title')
+        .loader.pull-right(data-bind='css: { active: router.isNavigating }')
+            i.icon-spinner.icon-2x.icon-spin

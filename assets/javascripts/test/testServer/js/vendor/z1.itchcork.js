@@ -80,7 +80,7 @@ window.ThemeManager = (function () {
     themeManager['curelean'].badgeSuccess = "#669900";
     themeManager['curelean'].badgeWarning = "#f80";
     themeManager['curelean'].codeColor = "#fff";
-    themeManager['curelean'].hoverColor = "#0a1366";
+    themeManager['curelean'].hoverColor = "#FF2B2B";
     themeManager['curelean'].wellBackgroundColor = "#0a1366";
     themeManager['curelean'].navBackgroundColor = "#4cc6ef";
     themeManager['curelean'].navBarInnerBackgroundColor = "#0a1366";
@@ -619,8 +619,8 @@ define("Suite", ['Test', 'benchmark', 'SuiteViewModel'], function (Test, Benchma
 
         self.currentTest;
 
-        self.it = function (func, shouldBe) {
-            self.currentTest = self.addTestWithBenchmarks(shouldBe, func, null, true);
+        self.it = function (describe, func, shouldBe) {
+            self.currentTest = self.addTestWithBenchmarks(shouldBe, func, describe, null, true);
 
             return self;
         };
@@ -644,8 +644,8 @@ define("Suite", ['Test', 'benchmark', 'SuiteViewModel'], function (Test, Benchma
             self.vm.tests.push(test);
         }
 
-        self.addTestWithBenchmarks = function (shouldEqual, testFunc, name, defer) {
-            var test = new Test(shouldEqual, testFunc, new jsFunc(), name);
+        self.addTestWithBenchmarks = function (shouldEqual, testFunc, describe, name, defer) {
+            var test = new Test(shouldEqual, testFunc, new jsFunc(), name, describe);
             if (!defer) {
                 self.processTest(test);
             }
@@ -710,11 +710,12 @@ define("SuiteView", ['UnitTestFrameworkManager'], function (utfm) {
     function view() {
 
         var self = this;
-        self.suites = new ko.observableArray([]);
+
         self.unitTestFrameworkManager = new utfm();
         self.unitTestFrameworkManager.init();
         self.menu = document.getElementById('menu');
         self.view = document.getElementById('view');
+        self.suites = new ko.observableArray([]);
         self.totalTests = new ko.observable(0);
         self.totalPassed = new ko.observable(0);
         self.totalFailed = new ko.observable(0);
@@ -724,6 +725,7 @@ define("SuiteView", ['UnitTestFrameworkManager'], function (utfm) {
         self.contextRoot = new ko.observable('raw.github.com/' + self.githubAccount() + '/' + self.githubRepo() + '/' + self.githubBranch() + '/');
         self.vendorRoot = new ko.observable(self.contextRoot() + 'vendor/');
         self.currentTheme = ko.observable(amplify.store('currentTheme'));
+        self.currentView = ko.observable('');
         var customTheme = amplify.store('customTheme');
         self.cto = {};
         for (var prop in customTheme) {
@@ -734,6 +736,15 @@ define("SuiteView", ['UnitTestFrameworkManager'], function (utfm) {
 
             );
         }
+
+        self.reset = function () {
+            "use strict";
+            self.suites([]);
+            self.totalTests(0);
+            self.totalPassed(0);
+            self.totalFailed(0);
+        }
+
 
         self.setMenuHeight = function () {
 
@@ -783,6 +794,7 @@ define("SuiteView", ['UnitTestFrameworkManager'], function (utfm) {
 
         };
 
+
         self.setTheme = function (theme) {
             window.ThemeManager.set(theme);
             self.currentTheme(theme);
@@ -819,6 +831,7 @@ define("SuiteView", ['UnitTestFrameworkManager'], function (utfm) {
                 $("#rightCorkCollapse").removeClass('collapseAll').addClass('expandAll');
             }
         };
+
     };
     return view;
 });
@@ -890,11 +903,12 @@ define("SuiteViewModel", ['benchmark', 'BenchmarkViewModel'], function (Benchmar
 });
 define("Test", [], function () {
 
-    var test = function (shouldEqual, func, ctx, testName) {
+    var test = function (shouldEqual, func, ctx, testName, describe) {
         'use strict';
         var expressionStr = func.toString().trim(), self = this;
         this.context = ctx;
         this.passed = false;
+        this.describe = describe;
         if (testName) {
             this.expression = testName + '()';
             this.actual = func(this.context, testName);
@@ -982,21 +996,12 @@ define("itchcork", ['Suite', 'Test', 'Spy', 'Verify'], function (Suite, Test, Sp
 });
 
 
-require(['https://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js', 'https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js', '/coverage/app.js'], function (ko) {
+require(['https://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js', 'https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js'], function (ko) {
     window.ko = ko;
 
     require(['SuiteView'], function (sv) {
+
         window.suiteView = new sv();
-
-        var context = '';
-        if (window.location.pathname && window.location.pathname.length > 1)
-            context = window.location.pathname.split('/')[1];
-        else if (window.location.hash && window.location.hash.length > 1)
-            context = window.location.hash.split('#')[1];
-
-
-        var suite = context != '' ? window.suiteView.unitTestFrameworkManager.getFramework() + '/' + context : 'all-' + window.suiteView.unitTestFrameworkManager.getFramework();
-        var suiteFilePath = suiteView.contextRoot() + 'examples/test';
 
         requirejs.config({
             baseUrl: 'https://',
@@ -1020,64 +1025,60 @@ require(['https://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js', 'https://
             $('div.frame').show();
             require(['coffeescript', 'platform', 'benchmark'], function (CoffeeScript) {
                 this.CoffeeScript = CoffeeScript;
-                require(['js2coffee'], function () {
-                    var postResults = function (stats, includeCoverage, callback) {
-                        if (includeCoverage) {
-                            if (window.__coverage__) {
-                                var coverage = JSON.stringify(window.__coverage__.valueOf());
-                                $.post("/coverage", {coverage: coverage});
-                            }
-                        }
+                require(['js2coffee', 'itchcork'], function () {
+                    var postResults = function (stats, callback) {
+
                         $.post("/stats", { stats: stats}, function () {
                             if (callback) {
                                 callback();
                             }
                         });
-                    }
-                    if (window.location.pathname === '/benchmarks') {
-                        window.suiteView.unitTestFrameworkManager.set('itchcork');
-                        require(['itchcork'], function () {
-                                "use strict";
-                                $.get('/benchmarkList', function (benchmarks) {
-                                    require(benchmarks, function () {
-                                        //window.suiteView.bindView();
+                    };
+
+                    var postCoverage = function () {
+                        "use strict";
+
+                        if (window.__coverage__) {
+                            var coverage = JSON.stringify(window.__coverage__.valueOf());
+                            $.post("/coverage", {coverage: coverage});
+                        }
+
+                    };
+
+                    var runItchCork = function () {
+                        "use strict";
+                        $.get('/benchmarkList', function (benchmarks) {
+                            require(benchmarks, function () {
+                                //window.suiteView.bindView();
+                            });
+                        });
+                    };
+
+                    var runMocha = function () {
+                        chai.use(sinonChai);
+                        window.assert = chai.assert;
+                        window.should = chai.should();
+                           require(['chai', 'sinon-chai','mocha'], function (chai, sinonChai, mocha) {
+
+                                if (window.location.search) {
+                                    var array = window.location.search.split('?');
+                                    var spec = array[1];
+                                    run([spec]);
+                                } else {
+                                    $.get('/specs', function (specs) {
+
+                                        run(specs);
+
                                     });
-                                });
-                            }
-                        );
-                    } else {
-                        window.suiteView.unitTestFrameworkManager.set('mocha');
-                        require(['mocha', 'itchcork'], function () {
-                            "use strict";
-                            require(['chai', 'sinon-chai'], function (chai, sinonChai) {
-                                try {
-                                    if (window.location.search) {
-                                        var array = window.location.search.split('?');
-                                        var spec = array[1];
-                                        runMocha([spec], postResults, $);
-                                    } else {
-                                        $.get('/specs', function (specs) {
-
-                                            runMocha(specs, postResults, $);
-
-                                        });
-                                    }
-                                } catch (ex) {
-                                    console.log(ex);
                                 }
 
-                                function runMocha(specs, postResults, $) {
-                                    //chai.use(sinonChai);
-                                    //                                var assert = chai.assert;
-                                    //                                var should = chai.should();
 
-
+                                var run = function (specs) {
                                     if (window.mochaPhantomJS) {
                                         mochaPhantomJS.run();
                                     }
                                     else {
                                         mocha.checkLeaks();
-
                                         mocha.globals(['jQuery']);
                                         mocha.run();
                                         mocha.setup('bdd');
@@ -1089,12 +1090,12 @@ require(['https://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js', 'https://
                                                 window.suiteView.totalTests(runner.total);
                                                 window.suiteView.totalPassed(runner.total - runner.failures);
                                                 window.suiteView.totalFailed(runner.failures);
-                                                _.each(runner.suite.suites,
-                                                    function (s) {
-                                                        require([s.title], function (c) {
-                                                            //var suite = new window.ItchCork.Suite(s.title, c, "mocha");
+                                                    _.each(runner.suite.suites,
+                                                        function (s) {
+                                                            require([s.title], function (c) {
+                                                               // var suite = new window.ItchCork.Suite(s.title, c, "mocha");
+                                                            });
                                                         });
-                                                    });
                                                 var suites = $("ul#mocha-report li.suite ul");
                                                 $("#collapse").click(function () {
                                                     $(suites).each(function (index, element) {
@@ -1111,20 +1112,49 @@ require(['https://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js', 'https://
 
                                                     $("#collapse").show();
                                                 });
-                                                postResults(runner.stats, true, function () {
+                                                postResults(runner.stats, function () {
                                                     }
                                                 );
                                                 window.suiteView.bindView();
                                             });
                                         });
-
-
                                     }
                                 }
                             });
-                        });
+                        };
 
+
+                    view = window.location.pathname;
+                    if (view.indexOf('coverage') > -1) {
+                        window.suiteView.currentView('Coverage');
+                        require(['mocha','/coverage/app.js'], function () {
+                            "use strict";
+                            window.suiteView.unitTestFrameworkManager.set('both');
+                            runItchCork();
+                            runMocha();
+                            postCoverage();
+                        })
+                        ;
                     }
+                    else if (view.indexOf('benchmarks') > -1) {
+                        window.suiteView.currentView('Benchmarks');
+                        window.suiteView.unitTestFrameworkManager.set('itchcork');
+                        require(['/js/app.js'], function () {
+                            "use strict";
+                            runItchCork();
+                        })
+                        ;
+                    }
+                    else {
+
+                        window.suiteView.currentView('UnitTests');
+                        window.suiteView.unitTestFrameworkManager.set('mocha');
+                        require(['mocha','/js/app.js'], function () {
+                            window.mocha = mocha;
+                            runMocha();
+                        });
+                    }
+
 
                 });
             });

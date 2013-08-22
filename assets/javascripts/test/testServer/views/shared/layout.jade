@@ -6,20 +6,14 @@ html
     body(style='')
         .container-fluid(style='height: 45px;')
         #frame.container-fluid.frame(style='height: 100%;')
-            #topNav.navbar-fixed-top(style='display: none; position: fixed; right: 0; left: 0; z-index: 1030; margin-bottom: 0;')
+            #topNav.navbar-fixed-top(style='display:none;position: fixed; right: 0; left: 0; z-index: 1030; margin-bottom: 0;')
                 .navbar-inner
                     a.logoBtn(href='')
                         img#logo.logo(src='/img/hitchscript_logo.png', style='cursor: pointer; margin-left: 5px;', data-bind='click: function(){toggleMenu();}', width='90', height='44')
 
                     div(style='position: absolute; left: 150px; top: 0px; padding: 3px !important;')
                         ul.nav.nav-pills
-                            li.active
-                                a(href='./') Unit Tests
-                            li
-                                a(href='./benchmarks') Benchmarks
-                            li
-                                a(href='./coverage') Coverage
-
+                           include views.html
                     .well(style='position: absolute; right: 57px; top: 0px; padding: 3px !important;')
                         .badge.count(style='cursor: pointer;', data-bind='click: function(){location.reload();}')
                             img#refresh(src='/img/glyphicons_081_refresh.png', width='25', height='26')

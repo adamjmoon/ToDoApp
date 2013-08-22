@@ -1,69 +1,73 @@
-﻿define(['../system'], function(system) {
+/**
+ * Durandal 2.0.0 Copyright (c) 2012 Blue Spire Consulting, Inc. All Rights Reserved.
+ * Available via the MIT license.
+ * see: http://durandaljs.com or https://github.com/BlueSpire/Durandal for details.
+ */
+/**
+ * The entrance transition module.
+ * @module entrance
+ * @requires system
+ * @requires composition
+ * @requires jquery
+ */
+define(['durandal/system', 'durandal/composition', 'jquery'], function(system, composition, $) {
     var fadeOutDuration = 100;
+    var endValues = {
+        marginRight: 0,
+        marginLeft: 0,
+        opacity: 1
+    };
+    var clearValues = {
+        marginLeft: '',
+        marginRight: '',
+        opacity: '',
+        display: ''
+    };
 
-    var entrance = function(parent, newChild, settings) {
+    /**
+     * @class EntranceModule
+     * @constructor
+     */
+    var entrance = function(context) {
         return system.defer(function(dfd) {
             function endTransition() {
                 dfd.resolve();
             }
 
             function scrollIfNeeded() {
-                if (!settings.keepScrollPosition) {
+                if (!context.keepScrollPosition) {
                     $(document).scrollTop(0);
                 }
             }
 
-            if (!newChild) {
-                scrollIfNeeded();
-
-                if (settings.activeView) {
-                    $(settings.activeView).fadeOut(fadeOutDuration, function () {
-                        if (!settings.cacheViews) {
-                            ko.virtualElements.emptyNode(parent);
-                        }
-                        endTransition();
-                    });
-                } else {
-                    if (!settings.cacheViews) {
-                        ko.virtualElements.emptyNode(parent);
-                    }
-                    endTransition();
-                }
+            if (!context.child) {
+                $(context.activeView).fadeOut(fadeOutDuration, endTransition);
             } else {
-                var $previousView = $(settings.activeView);
-                var duration = settings.duration || 500;
+                var duration = context.duration || 500;
+                var fadeOnly = !!context.fadeOnly;
 
                 function startTransition() {
                     scrollIfNeeded();
-
-                    if (settings.cacheViews) {
-                        if (settings.composingNewView) {
-                            ko.virtualElements.prepend(parent, newChild);
-                        }
-                    } else {
-                        ko.virtualElements.emptyNode(parent);
-                        ko.virtualElements.prepend(parent, newChild);
-                    }
+                    context.triggerAttach();
 
                     var startValues = {
-                        marginLeft: '20px',
-                        marginRight: '-20px',
+                        marginLeft: fadeOnly ? '0' : '20px',
+                        marginRight: fadeOnly ? '0' : '-20px',
                         opacity: 0,
                         display: 'block'
                     };
 
-                    var endValues = {
-                        marginRight: 0,
-                        marginLeft: 0,
-                        opacity: 1
-                    };
+                    var $child = $(context.child);
 
-                    $(newChild).css(startValues);
-                    $(newChild).animate(endValues, duration, 'swing', endTransition);
+                    $child.css(startValues);
+                    $child.animate(endValues, duration, 'swing', function () {
+                        $child.css(clearValues);
+                        endTransition();
+                    });
                 }
 
-                if ($previousView.length) {
-                    $previousView.fadeOut(fadeOutDuration, startTransition);
+                if (context.activeView) {
+                    $(context.activeView).fadeOut(fadeOutDuration, startTransition);
                 } else {
                     startTransition();
                 }

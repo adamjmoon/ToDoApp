@@ -1,31 +1,3 @@
-define("models/homeTodo",['ot/model'], function (Model) {
-    "use strict";
-    function todoModel(route) {
-       this.apiRoute = 'homeTodo';
-    }
-    todoModel.inherits(Model);
-
-    return todoModel;
-});
-define("todoModel",['ot/model'], function (Model) {
-    "use strict";
-    function todoModel(route) {
-       this.apiRoute = 'todo';
-    }
-    todoModel.inherits(Model);
-
-    return todoModel;
-});
-define("models/workTodo",['ot/model'], function (Model) {
-    "use strict";
-    function WorkTodoModel(route) {
-       this.apiRoute = 'workTodo';
-    }
-    WorkTodoModel.inherits(Model);
-
-    return WorkTodoModel;
-});
-
 define("InMemory", function () {
     "use strict";
     function InMemory() {
@@ -246,56 +218,95 @@ define('errorlog', [],
 
         return errorlog;
     });
-define("listViewModel", ['viewModel'], function (ViewModel) {
-    function listViewModel() {}
-
-    listViewModel.prototype.map = function (array) {
-        var list = ko.observableArray([]);
-        var viewModel = new ViewModel();
-        _.map(array, function (dataItem) {
-            list.push(viewModel.map(dataItem));
-        });
-        return list;
-    };
-
-    return listViewModel;
-});
 define("localStorage", function () {
     "use strict";
     function localStorage() {
+        var deferred = undefined;
+        var self = this;
         this.get = function (key) {
+            console.log('get: ' +  (amplify.store(key)));
             return ko.utils.parseJson(amplify.store(key));
+
         };
         this.post = function (key, item) {
-            amplify.store(key, item);
-            return ko.utils.parseJson(amplify.store(key));
+            amplify.store(key, ko.toJSON(item));
+            return self.get(key);
+
         };
         this.put = function (key, item) {
             amplify.store(key, item);
-            return ko.utils.parseJson(amplify.store(key));
+            return self.get(key);
         };
     }
     return localStorage;
 });
-define("ot/model",['OT'], function (OT) {
+define("ot/model", ['OT'], function (OT) {
     "use strict";
-    function Model(route) {
+    function Model(route, observe, isList, subscribeCallback) {
+        this.apiRoute = route || '';
+        this.observe = observe;
+        this.subscribeCallback = subscribeCallback;
+        this.isList = isList;
         var self = this;
-        self.apiRoute = route;
-    }
 
-    Model.prototype.get = function get() {
-            return OT.DataService.get(self.apiRoute);
+        self.init = function (data) {
+            return self.put(data);
+        }
+
+        self.get = function get(callback) {
+
+            var result = OT.DataService.get(self.apiRoute);
+            if (self.observe) {
+                if (self.isList) {
+                    return self.mapToObservableList(result);
+                }
+                else {
+                    return self.mapToObservables(result);
+                }
+            }
+            else {
+                return result;
+            }
+
+
         };
-    Model.prototype.post = function post(data) {
+
+        self.post = function post(data) {
             return OT.DataService.post(self.apiRoute, data);
         };
-    Model.prototype.put = function put(data) {
-            return OT.DataService.put(self.apiRoute, data);
+        self.put = function put(data) {
+            return OT.DataService.put(self.apiRoute,data);
         };
 
+        self.mapToObservableList = function (array) {
+            var list = ko.observableArray([]);
+            _.map(array, function (dataItem) {
+                list.push(self.mapToObservables(dataItem));
+            });
+            return list;
+        };
+
+        self.mapToObservables = function (dataItem) {
+            var obj = {};
+            for (var prop in dataItem) {
+                if (observe) {
+                    obj[prop] = ko.observable(dataItem[prop]);
+                    if (subscribeCallback) {
+                        obj[prop].subscribe(new Function('newValue', "self.model.subscribeCallback('" + prop + "',newValue);"));
+                    }
+                }
+                else {
+                    obj[prop] = dataItem[prop];
+                }
+            }
+            return obj;
+        };
+    }
+
     return Model;
-});
+
+})
+;
 define("util", function () {
     function util() {
         "use strict";
@@ -328,12 +339,20 @@ define("util", function () {
         };
 
         Function.prototype.extends = function (parent) {
-            for (var key in parent) {
-                this[key] = parent[key];
+            if (parent instanceof Function) {
+                var parentInstance = new parent();
+                for (var key in parentInstance) {
+                    this[key] = parentInstance[key];
+                }
             }
+            else {
+                for (var key in parent) {
+                    this[key] = parent[key];
+                }
+            }
+
             return this;
         }
-
     }
 
     return util;
@@ -341,65 +360,20 @@ define("util", function () {
 ;
 
 
-define("viewModel", ["viewModelMap"], function (ViewModelMap) {
-    function viewModel(){
-        "use strict";
-        this.observe = false;
-        this.subscribe = undefined;
-    }
-
-    viewModel.prototype.observeAll = function(){
-        "use strict";
-         viewModel.observe = true;
-    };
-
-    viewModel.prototype.subscribeAll = function(){
-        "use strict";
-        viewModel.subscribe = function(property,newValue){
-
-        }
-    };
-
-    viewModel.prototype.map = function (dataItem) {
-        var viewModelMap = new ViewModelMap();
-        return viewModelMap.map(dataItem, viewModel.observe, viewModel.subscribe);
-    };
-
-    return viewModel;
-});
-define("viewModelMap", function () {
-    var viewModelMap = function () {};
-
-    viewModelMap.prototype.map = function (dataItem, observe, subscribeCallback) {
-        var viewModel = {};
-        for (var prop in dataItem) {
-            if (observe) {
-                viewModel[prop] = ko.observable(dataItem[prop]);
-                if (subscribeCallback) {
-                    viewModel[prop].subscribe(new Function('newValue', "subscribeCallback('" + prop + "',newValue);"));
-                }
-            }
-            else {
-                viewModel[prop] = dataItem[prop];
-            }
-        }
-
-        return viewModel;
-    };
-
-    return viewModelMap;
-});
-
 define("OT", ['util', 'bindingHandlers', 'dataservice'], function (Util, BindingHandlers,dataservice) {
 
-    var ot = {
-        Util:  new Util(),
-        BindingHandlers: new BindingHandlers(),
-        DataService: new dataservice()
-    }
+    var util  = new Util();
+    var bindingHandlers = new BindingHandlers();
+    var dataService = new dataservice();
 
+    var ot = {
+        Util: util,
+        BindingHandlers: util,
+        DataService: dataService
+    }
     window.OT = ot;
     return ot;
+
 });
 define('todo', function () {
     "use strict";
@@ -413,241 +387,196 @@ define('todo', function () {
 });
 
 
-define('viewmodels/todo', ['todo','ot/model'], function (Todo, Model) {
+define('viewmodels/grocery', ['viewmodels/todo', 'ot/model'], function (TodoViewModel, Model) {
+    "use strict";
+    function groceryListViewModel() {
+    }
+
+    groceryListViewModel.inherits(TodoViewModel);
+
+    var self = groceryListViewModel.prototype;
+    self.model = new Model('todo/grocery');
+    self.name = 'grocery list';
+
+    self.activate = function (showMode) {
+
+        this.model.apiRoute = 'todo/grocery';
+        this.get();
+
+        if (showMode) {
+            self.showMode(showMode)
+        }
+    };
+
+
+    return groceryListViewModel;
+})
+;
+
+
+define('viewmodels/shell', ['plugins/router', 'durandal/app'], function (router, app) {
+
+    return {
+        router: router,
+        activate: function () {
+            router.map([
+                { route: '', title: 'Todo', moduleId: 'viewmodels/todo', nav: false },
+                { route: 'todo(/:showMode)', title: 'Todo', moduleId: 'viewmodels/todo', hash: '#todo',nav: true },
+                { route: 'work(/:showMode)', title: 'Work', moduleId: 'viewmodels/work', hash: '#work', nav: true },
+                { route: 'grocery(/:showMode)', title: 'Grocery List', moduleId: 'viewmodels/grocery', hash: '#grocery', nav: true }
+            ]).buildNavigationModel();
+
+            return router.activate();
+        }
+    };
+});
+define('viewmodels/todo', ['todo', 'ot/model', 'plugins/router'], function (Todo, Model, router) {
     "use strict";
     function todoViewModel() {
 
-    var self = this;
-
-    self.model = new Model(route);
-
-    self.todos = ko.observableArray(ko.utils.arrayMap(self.model.get() || self.model.put('[]'), function (todo) {
-        return new Todo(todo.title, todo.completed);
-    }));
-
-    self.applyPlugins = function () {
-        $("frame").niceScroll();
-        self.nice = $("#frame").getNiceScroll();
     }
 
-            // store the new todo value being entered
-            self.current = ko.observable();
-            self.showMode = ko.observable('all');
+    todoViewModel.prototype.model= new Model();
+    todoViewModel.prototype.setModelRoute = function (route) {
+        this.model.apiRoute = route;
+    };
 
-            self.filteredTodos = ko.computed(function () {
-                switch (self.showMode()) {
-                    case 'active':
-                        return self.todos().filter(function (todo) {
-                            return !todo.completed();
-                        });
-                    case 'completed':
-                        return self.todos().filter(function (todo) {
-                            return todo.completed();
-                        });
-                    default:
-                        return self.todos();
-                }
-            });
 
-            // add a new todo, when enter key is pressed
-            self.add = function () {
-                var current = self.current().trim();
-                if (current) {
-                    self.todos.push(new Todo(current));
-                    self.current('');
-                    self.nice.resize();
-                }
-            };
+    todoViewModel.prototype.current = ko.observable();
+    todoViewModel.prototype.showMode = ko.observable('all');
+    todoViewModel.prototype.name = 'todos';
+    todoViewModel.prototype.todos = ko.observableArray([]);
 
-            // remove a single todo
-            self.remove = function (todo) {
-                self.todos.remove(todo);
-            };
-
-            // remove all completed todos
-            self.removeCompleted = function () {
-                self.todos.remove(function (todo) {
-                    return todo.completed();
-                });
-            };
-
-            // edit an item
-            self.editItem = function (item) {
-                item.editing(true);
-            };
-
-            // stop editing an item.  Remove the item, if it is now empty
-            self.stopEditing = function (item) {
-                item.editing(false);
-
-                if (!item.title().trim()) {
-                    self.remove(item);
-                }
-            };
-
-            // count of all completed todos
-            self.completedCount = ko.computed(function () {
-                return ko.utils.arrayFilter(self.todos(),function (todo) {
-                    return todo.completed();
-                }).length;
-            });
-
-            // count of todos that are not complete
-            self.remainingCount = ko.computed(function () {
-                return self.todos().length - self.completedCount();
-            });
-
-            // writeable computed observable to handle marking all complete/incomplete
-            self.allCompleted = ko.computed({
-                //always return true/false based on the done flag of all todos
-                read: function () {
-                    return !self.remainingCount();
-                },
-                // set all todos to the written value (true/false)
-                write: function (newValue) {
-                    ko.utils.arrayForEach(self.todos(), function (todo) {
-                        // set even if value is the same, as subscribers are not notified in that case
-                        todo.completed(newValue);
-                    });
-                }
-            });
-
-            // helper function to keep expressions out of markup
-            self.getLabel = function (count) {
-                return ko.utils.unwrapObservable(count) === 1 ? 'item' : 'items';
-            };
-
-            // internal computed observable that fires whenever anything changes in our todos
-            ko.computed(function () {
-                // store a clean copy to local storage, which also creates a dependency on the observableArray and all observables in each item
-                OT.dataProvider.put(self.listKey, ko.toJSON(self.todos));
-            }).extend({
-                throttle: 1000
-            }); // save at most once per second
-
+    todoViewModel.prototype.get = function () {
+        this.todos(ko.utils.arrayMap(todoViewModel.prototype.model.get() || [], function (todo) {
+            return new Todo(todo.title, todo.completed);
+        }));
     }
-
-    return todoViewModel;
-});
-
-
-define('viewmodels/work', ['todo','ot/model'], function (Todo, Model) {
-    "use strict";
-    function workTodoViewModel() {
+    todoViewModel.prototype.update = function () {
+        this.model.post(ko.toJSON(this.todos()));
+    };
 
 
-    var self = this;
-    self.route='todo';
-    self.model = new Model(route);
+    todoViewModel.prototype.activate = function (showMode) {
+        this.model.apiRoute = 'todo/basic';
+        this.get();
+        if (showMode) {
+            todoViewModel.prototype.showMode(showMode);
+        }
+    };
 
-
-    self.todos = ko.observableArray(ko.utils.arrayMap(self.model.get() || self.model.put('[]'), function (todo) {
-        return new Todo(todo.title, todo.completed);
-    }));
-
-    self.applyPlugins = function () {
-        $("frame").niceScroll();
-        self.nice = $("#frame").getNiceScroll();
-    }
-
-    // store the new todo value being entered
-    self.current = ko.observable();
-    self.showMode = ko.observable('all');
-
-    self.filteredTodos = ko.computed(function () {
-        switch (self.showMode()) {
+    todoViewModel.prototype.filteredTodos = ko.computed(function () {
+        switch (todoViewModel.prototype.showMode()) {
             case 'active':
-                return self.todos().filter(function (todo) {
+                return todoViewModel.prototype.todos().filter(function (todo) {
                     return !todo.completed();
                 });
             case 'completed':
-                return self.todos().filter(function (todo) {
+                return todoViewModel.prototype.todos().filter(function (todo) {
                     return todo.completed();
                 });
             default:
-                return self.todos();
+                return todoViewModel.prototype.todos();
         }
     });
 
     // add a new todo, when enter key is pressed
-    self.add = function () {
-        var current = self.current().trim();
+    todoViewModel.prototype.add = function () {
+        var current = todoViewModel.prototype.current().trim();
         if (current) {
-            self.todos.push(new Todo(current));
-            self.current('');
-            self.nice.resize();
+            todoViewModel.prototype.todos.push(new Todo(current, false));
+            todoViewModel.prototype.update();
+            todoViewModel.prototype.current('');
         }
     };
 
     // remove a single todo
-    self.remove = function (todo) {
-        self.todos.remove(todo);
+    todoViewModel.prototype.remove = function (todo) {
+        todoViewModel.prototype.todos.remove(todo);
+        todoViewModel.prototype.update();
     };
 
     // remove all completed todos
-    self.removeCompleted = function () {
-        self.todos.remove(function (todo) {
+    todoViewModel.prototype.removeCompleted = function () {
+        todoViewModel.prototype.todos.remove(function (todo) {
             return todo.completed();
         });
+        todoViewModel.prototype.update();
     };
 
     // edit an item
-    self.editItem = function (item) {
+    todoViewModel.prototype.editItem = function (item) {
         item.editing(true);
     };
 
     // stop editing an item.  Remove the item, if it is now empty
-    self.stopEditing = function (item) {
+    todoViewModel.prototype.stopEditing = function (item) {
         item.editing(false);
+        todoViewModel.prototype.update();
 
         if (!item.title().trim()) {
-            self.remove(item);
+            todoViewModel.prototype.remove(item);
         }
     };
 
     // count of all completed todos
-    self.completedCount = ko.computed(function () {
-        return ko.utils.arrayFilter(self.todos(),function (todo) {
+    todoViewModel.prototype.completedCount = ko.computed(function () {
+        return ko.utils.arrayFilter(todoViewModel.prototype.todos(),function (todo) {
             return todo.completed();
         }).length;
     });
 
     // count of todos that are not complete
-    self.remainingCount = ko.computed(function () {
-        return self.todos().length - self.completedCount();
+    todoViewModel.prototype.remainingCount = ko.computed(function () {
+        return todoViewModel.prototype.todos().length - todoViewModel.prototype.completedCount();
     });
 
     // writeable computed observable to handle marking all complete/incomplete
-    self.allCompleted = ko.computed({
+    todoViewModel.prototype.allCompleted = ko.computed({
         //always return true/false based on the done flag of all todos
         read: function () {
-            return !self.remainingCount();
+            return !todoViewModel.prototype.remainingCount();
         },
         // set all todos to the written value (true/false)
         write: function (newValue) {
-            ko.utils.arrayForEach(self.todos(), function (todo) {
+            ko.utils.arrayForEach(todoViewModel.prototype.todos(), function (todo) {
                 // set even if value is the same, as subscribers are not notified in that case
                 todo.completed(newValue);
             });
+            todoViewModel.prototype.update();
         }
     });
 
     // helper function to keep expressions out of markup
-    self.getLabel = function (count) {
+    todoViewModel.prototype.getLabel = function (count) {
         return ko.utils.unwrapObservable(count) === 1 ? 'item' : 'items';
     };
 
-    // internal computed observable that fires whenever anything changes in our todos
-    ko.computed(function () {
-        // store a clean copy to local storage, which also creates a dependency on the observableArray and all observables in each item
-        OT.dataProvider.put(self.listKey, ko.toJSON(self.todos));
-    }).extend({
-            throttle: 1000
-        }); // save at most once per second
 
-}
+    todoViewModel.prototype.maxHeight = window.innerHeight - 200;
 
-return workTodoViewModel;
-})
-;
+
+    return todoViewModel;
+});
+define('viewmodels/work', ['viewmodels/todo', 'ot/model', 'todo'], function (TodoViewModel, Model, Todo) {
+    "use strict";
+    function workTodoViewModel() {
+    }
+
+    workTodoViewModel.inherits(TodoViewModel);
+
+    workTodoViewModel.prototype.name = 'work todos';
+
+
+    workTodoViewModel.prototype.activate = function (showMode) {
+        this.model.apiRoute = 'todo/work';
+        this.get();
+
+        if (showMode) {
+            workTodoViewModel.prototype.showMode(showMode)
+        }
+    };
+
+    return workTodoViewModel;
+});
 

@@ -5,6 +5,6 @@ define ['viewModel'], (c) ->
     i = 1
     dataItem = {id: 1, name: "a", email: "b", valid: true}
     it "should have ko observable property -> id", ->
-      i.should.equal(1)
+        i.should.equal(1)
     return
   return

@@ -28,10 +28,11 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-yui-compressor'
   grunt.loadNpmTasks 'grunt-istanbul'
   grunt.loadNpmTasks 'grunt-parallel'
+  grunt.loadNpmTasks 'grunt-contrib-requirejs'
 
   # Make task shortcuts
   grunt.registerTask 'default', ['parallel:dev', 'instrument']
-  grunt.registerTask 'build', ['concat:vendor','concat:css', 'jshint', 'min', 'cssmin']
+  grunt.registerTask 'build', ['concat:vendor', 'concat:css', 'jshint', 'min', 'cssmin']
 
   # Configure Grunt
   grunt.initConfig
@@ -39,7 +40,7 @@ module.exports = (grunt) ->
       files: [app + '**/*.js']
     concat:
       vendor:
-        src: [vendor + '*.js',js + 'livereload.js', js + 'main.js']
+        src: [vendor + '*.js', js + 'livereload.js', js + 'main.js']
         dest: js + 'vendor.js'
       testVendors:
         src: [testServerJs + 'vendor/*.js']
@@ -56,6 +57,12 @@ module.exports = (grunt) ->
       css:
         src: [css + 'app/*.css', css + 'bootstrap/*.css']
         dest: css + 'app.css'
+    requirejs:
+      compile:
+        options:
+          baseUrl: js
+          name: 'main'
+          out: js + 'dist/app.min.js'
     min:
       'vendor':
         'src': 'assets/javascripts/vendor.js'
@@ -78,10 +85,10 @@ module.exports = (grunt) ->
           pretty: true
           basedir: ''
         files: [
-                src: '.\\assets\\views\\*.jade'
-                ext: ".html"
-                expand: true
-              ]
+          src: '.\\assets\\javascripts\\views\\*.jade'
+          ext: ".html"
+          expand: true
+        ]
     parallel:
       dev:
         options:
@@ -98,24 +105,25 @@ module.exports = (grunt) ->
     watch:
       scripts:
         files: [js + 'main.js', app + '**/*.js', ot + '*.js', css + 'app/*.css']
-        tasks: ['concat','liveReload_App']
+        tasks: ['concat', 'liveReload_App']
         options:
           nospawn: true
           interrupt: true
       test:
         files: [test + '*.coffee']
-        tasks: ['compileSpecs','openUnitTestReport']
+        tasks: ['compileSpecs', 'openUnitTestReport']
         options:
           nospawn: true
           interrupt: true
       jade:
-        files: [contentRoot + 'views/**/*.jade']
-        tasks: ['jade','liveReload_App']
+        files: [contentRoot + '/javascripts/views/**/*.jade']
+        tasks: ['jade', 'liveReload_App']
         options:
           nospawn: true
           interrupt: true
       testServerLiveReload:
-        files: [testServer + 'views/*.jade', testServer + 'views/shared/*.jade', testServer + 'views/*.html', testServer + 'views/shared/*.html']
+        files: [testServer + 'views/*.jade', testServer + 'views/shared/*.jade', testServer + 'views/*.html',
+                testServer + 'views/shared/*.html']
         tasks: ['liveReload_UnitTestReport']
         options:
           nospawn: true
@@ -132,16 +140,16 @@ module.exports = (grunt) ->
         flatten: true
 
   grunt.registerTask 'startAppServer', ->
-     alreadyOn = false
-     callback = (result) ->
-       alreadyOn = result
-       unless alreadyOn
-         startServer(done, appServerPath)
-       else
-         console.log 'no need to start JS Unit Test Server'
-         done()
-     testSocket appServerPort, this.async, callback
-     done = this.async()
+    alreadyOn = false
+    callback = (result) ->
+      alreadyOn = result
+      unless alreadyOn
+        startServer(done, appServerPath)
+      else
+        console.log 'no need to start JS Unit Test Server'
+        done()
+    testSocket appServerPort, this.async, callback
+    done = this.async()
 
   grunt.registerTask 'startUnitTestServer', ->
     alreadyOn = false
@@ -200,7 +208,7 @@ module.exports = (grunt) ->
       pageAlreadyOpen = result
       console.log pageAlreadyOpen
       unless pageAlreadyOpen
-        openPage(done,appUrl)
+        openPage(done, appUrl)
       else
         console.log('App Already Open')
     testWebSocket appServerWebSocketPort, this.async, callback

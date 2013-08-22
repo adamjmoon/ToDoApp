@@ -3,9 +3,11 @@ require(['ot/model', 'OT', 'InMemory'], function(Model, OT, InMemory) {
   var suite;
   OT.DataService = new InMemory();
   suite = new window.ItchCork.Suite('Model Benchmarks', Model);
-  suite.it(function(model) {
-    model.apiRoute = '/todo/basic';
+  suite.it('get() should return an empty array when put() is called with an empty array', function(model) {
     model.put([]);
     return model.get().length;
-  }).shouldBe(0).benchmark();
+  }).shouldBe(0).it('get() should return an array with length of 1 when put() is called with [1]', function(model) {
+    model.put([1]);
+    return model.get().length;
+  }).shouldBe(1).benchmark();
 });

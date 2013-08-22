@@ -218,56 +218,95 @@ define('errorlog', [],
 
         return errorlog;
     });
-define("listViewModel", ['viewModel'], function (ViewModel) {
-    function listViewModel() {}
-
-    listViewModel.prototype.map = function (array) {
-        var list = ko.observableArray([]);
-        var viewModel = new ViewModel();
-        _.map(array, function (dataItem) {
-            list.push(viewModel.map(dataItem));
-        });
-        return list;
-    };
-
-    return listViewModel;
-});
 define("localStorage", function () {
     "use strict";
     function localStorage() {
+        var deferred = undefined;
+        var self = this;
         this.get = function (key) {
+            console.log('get: ' +  (amplify.store(key)));
             return ko.utils.parseJson(amplify.store(key));
+
         };
         this.post = function (key, item) {
-            amplify.store(key, item);
-            return ko.utils.parseJson(amplify.store(key));
+            amplify.store(key, ko.toJSON(item));
+            return self.get(key);
+
         };
         this.put = function (key, item) {
             amplify.store(key, item);
-            return ko.utils.parseJson(amplify.store(key));
+            return self.get(key);
         };
     }
     return localStorage;
 });
-define("ot/model",['OT'], function (OT) {
+define("ot/model", ['OT'], function (OT) {
     "use strict";
-    function Model(route) {
+    function Model(route, observe, isList, subscribeCallback) {
+        this.apiRoute = route || '';
+        this.observe = observe;
+        this.subscribeCallback = subscribeCallback;
+        this.isList = isList;
         var self = this;
-        self.apiRoute = route;
-    }
 
-    Model.prototype.get = function get() {
-            return OT.DataService.get(self.apiRoute);
+        self.init = function (data) {
+            return self.put(data);
+        }
+
+        self.get = function get(callback) {
+
+            var result = OT.DataService.get(self.apiRoute);
+            if (self.observe) {
+                if (self.isList) {
+                    return self.mapToObservableList(result);
+                }
+                else {
+                    return self.mapToObservables(result);
+                }
+            }
+            else {
+                return result;
+            }
+
+
         };
-    Model.prototype.post = function post(data) {
+
+        self.post = function post(data) {
             return OT.DataService.post(self.apiRoute, data);
         };
-    Model.prototype.put = function put(data) {
-            return OT.DataService.put(self.apiRoute, data);
+        self.put = function put(data) {
+            return OT.DataService.put(self.apiRoute,data);
         };
 
+        self.mapToObservableList = function (array) {
+            var list = ko.observableArray([]);
+            _.map(array, function (dataItem) {
+                list.push(self.mapToObservables(dataItem));
+            });
+            return list;
+        };
+
+        self.mapToObservables = function (dataItem) {
+            var obj = {};
+            for (var prop in dataItem) {
+                if (observe) {
+                    obj[prop] = ko.observable(dataItem[prop]);
+                    if (subscribeCallback) {
+                        obj[prop].subscribe(new Function('newValue', "self.model.subscribeCallback('" + prop + "',newValue);"));
+                    }
+                }
+                else {
+                    obj[prop] = dataItem[prop];
+                }
+            }
+            return obj;
+        };
+    }
+
     return Model;
-});
+
+})
+;
 define("util", function () {
     function util() {
         "use strict";
@@ -300,12 +339,20 @@ define("util", function () {
         };
 
         Function.prototype.extends = function (parent) {
-            for (var key in parent) {
-                this[key] = parent[key];
+            if (parent instanceof Function) {
+                var parentInstance = new parent();
+                for (var key in parentInstance) {
+                    this[key] = parentInstance[key];
+                }
             }
+            else {
+                for (var key in parent) {
+                    this[key] = parent[key];
+                }
+            }
+
             return this;
         }
-
     }
 
     return util;
@@ -313,63 +360,18 @@ define("util", function () {
 ;
 
 
-define("viewModel", ["viewModelMap"], function (ViewModelMap) {
-    function viewModel(){
-        "use strict";
-        this.observe = false;
-        this.subscribe = undefined;
-    }
-
-    viewModel.prototype.observeAll = function(){
-        "use strict";
-         viewModel.observe = true;
-    };
-
-    viewModel.prototype.subscribeAll = function(){
-        "use strict";
-        viewModel.subscribe = function(property,newValue){
-
-        }
-    };
-
-    viewModel.prototype.map = function (dataItem) {
-        var viewModelMap = new ViewModelMap();
-        return viewModelMap.map(dataItem, viewModel.observe, viewModel.subscribe);
-    };
-
-    return viewModel;
-});
-define("viewModelMap", function () {
-    var viewModelMap = function () {};
-
-    viewModelMap.prototype.map = function (dataItem, observe, subscribeCallback) {
-        var viewModel = {};
-        for (var prop in dataItem) {
-            if (observe) {
-                viewModel[prop] = ko.observable(dataItem[prop]);
-                if (subscribeCallback) {
-                    viewModel[prop].subscribe(new Function('newValue', "subscribeCallback('" + prop + "',newValue);"));
-                }
-            }
-            else {
-                viewModel[prop] = dataItem[prop];
-            }
-        }
-
-        return viewModel;
-    };
-
-    return viewModelMap;
-});
-
 define("OT", ['util', 'bindingHandlers', 'dataservice'], function (Util, BindingHandlers,dataservice) {
 
-    var ot = {
-        Util:  new Util(),
-        BindingHandlers: new BindingHandlers(),
-        DataService: new dataservice()
-    }
+    var util  = new Util();
+    var bindingHandlers = new BindingHandlers();
+    var dataService = new dataservice();
 
+    var ot = {
+        Util: util,
+        BindingHandlers: util,
+        DataService: dataService
+    }
     window.OT = ot;
     return ot;
+
 });

@@ -87,6 +87,10 @@ app.all('/results', function (req, res, next) {
     next();
 });
 
+app.get('/coverage', function (req, res) {
+    res.render('coverage');
+})
+
 app.post('/coverage', function (req, res) {
 
     fs.writeFile(__dirname + '/coverage/coverage.json',req.body.coverage, function (err) {
@@ -117,22 +121,6 @@ app.post('/stats', function (req, res) {
         }
     }
     res.send(200);
-})
-
-app.post('/log/error', function (req, res) {
-    console.log(req.body[0]);
-    res.send(500);
-})
-
-
-app.post('/log/warning', function (req, res) {
-    console.log(req.body);
-    res.send(500);
-})
-
-
-app.get('/customerservice', function (req, res) {
-    res.send(500);
 })
 
 

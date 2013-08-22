@@ -100,13 +100,16 @@
                                     <table class="table table-condensed" id="results">
                                         <thead>
                                         <tr>
-                                            <th>expression</th>
+                                            <th></th>
                                             <th>should.equal</th>
                                             <th>actual</th>
                                             <th>typeof</th>
                                         </tr>
                                         </thead>
                                         <tbody data-bind="'foreach': tests">
+                                        <tr data-bind="css: passed ? 'success' : 'error'">
+                                            <td colspan='4'><span class="badge badge-info" data-bind="text: describe"></span></td>
+                                        </tr>
                                         <tr data-bind="css: passed ? 'success' : 'error'">
                                             <td><code class="well help-inline"
                                                       data-bind="text: expression"></code></td>
@@ -130,8 +133,8 @@
                                                               data-target=".collapseBenchmarks" href="#"><span
                                     class="badge badge-info">BENCHMARKS&nbsp;</span>
                                     <span data-bind="text: benchmarkPlatform"
-                                          class="badge badge-inverse"/>&nbsp;<span
-                                        data-bind="text: !benchmarksDone() ? 'RUNNING...': 'COMPLETED', css: benchmarksDone() ? 'badge badge-success' : 'badge badge-warning'"/></a>
+                                          class="badge badge-inverse"></span><span data-bind="text: !benchmarksDone() ? 'RUNNING...': 'COMPLETED', css: benchmarksDone() ? 'badge badge-success' : 'badge badge-warning'"></span>
+                            </a>
                             </div>
                             <div data-bind="css: 'accordion-body collapse in collapseBenchmarks' + num">
                                 <div class="accordion-inner results">
@@ -177,8 +180,8 @@
             </div>
         </div>
     </div>
-    <div id="mocha" class="row-fluid">
-        <a id="collapse" class="badge pull-right" href="#">Collapse All</a>
-        <a id="expand" class="badge hide pull-right" href="#">Expand All</a>
+    <div id="mocha" class="row-fluid" data-bind="visible: window.suiteView.unitTestFrameworkManager.getFramework()!=='itchcork'">
+        <a id="collapse" class="badge offset11" href="#">Collapse All</a>
+        <a id="expand" class="badge hide offset11" href="#">Expand All</a>
     </div>
 </div>
