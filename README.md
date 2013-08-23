@@ -1,160 +1,50 @@
-ToDoApp Durandal
-================
+ToDoApp with Durandal
+=====================
 
+[1]:  http://durnandaljs.com/                "Durandal"
+[2]:  http://knockoutjs.com/                 "Knockout"
+[3]:  http://requirejs.org                   "RequireJS / almond.js"
+[4]:  http://lodash.com                      "Lo-Dash"
+[5]:  http://jquery.com/                     "jquery"
+[6]:  http://amplifyjs.com                   "amplifyjs"
+[7]:  http://getbootstrap.com                "bootstrap"
+[8]:  http://lesscss.org/                    "less"
+[9]:  http://jade-lang.com/                  "jade"
+[10]: http://visionmedia.github.io/mocha/    "mocha"
+[11]: http://sinonjs.org/                    "sinon"
+[12]: http://coffeescript.org/               "coffescript"
+[12]: http://benchmarkjs.com/                "benchmarksjs"
+[13]: https://github.com/gotwarlost/istanbul "istanbul"
+[14]: http://gruntjs.com/                    "grunt"
+[15]: http://requirejs.org/docs/optimization.html                    "r.js"
 
-*View the [source of this content](http://github.github.com/github-flavored-markdown/sample_content.html).*
+Frameworks used:
 
-Let's get the whole "linebreak" thing out of the way. The next paragraph contains two phrases separated by a single newline character:
+| `javascript`    | `styles`        | `templates`| `unit tests` `benchmarks` `coverage` | `build` `optimize` |
+| -------------   |:---------------:|:----------:|:------------------------------------:|:------------------:|
+| [`Durandal`][1] |[`bootstrap`][7] |[`jade`][9] | [`mocha`][10]                        | [`grunt`][14]      |
+| [`Knockout`][2] |[`less`][8]      |            | [`sinon`][11]                        | [`r.js`][15]       |
+| [`RequireJS`][3]|                 |            | [`benchmarkjs`][12]              
+| [`Lo-Dash`][4]  |                 |            | [`istanbul`][13]
+| [`Jquery`][5]   |
+| [`AmplifyJS`][6]|
 
-Roses are red
-Violets are blue
+Setup
+=====
+Windows
+   1. Install [`node.js`](http://nodejs.org/)
+   2. Install [`growl`](http://www.growlforwindows.com/gfw/) *Note: THIS IS OPTIONAL
+   3. Run `npm_install.bat`
+       * installs app node dependencies
+       * installs unit test server node dependencies in test server directory
+   4. Run `grunt`
+       Completes the following steps in parallel
+       * combine js and css files
+       * compile coffeescript unit tests,
+       * compile jade templates to html,
+       * start Node Express App Server,
+       * open browser tab to App url localhost:5000,
+       * start Node Express Unit/Integeration/Benchmark/Code Coverage Server,
+       * open browser tab to Unit Test Server url localhost:4000
+       * setup watcher with Live Reload
 
-The next paragraph has the same phrases, but now they are separated by two spaces and a newline character:
-
-Roses are red
-Violets are blue
-
-Oh, and one thing I cannot stand is the mangling of words with multiple underscores in them like perform_complicated_task or do_this_and_do_that_and_another_thing.
-
-A bit of the GitHub spice
--------------------------
-
-In addition to the changes in the previous section, certain references are auto-linked:
-
-* SHA: be6a8cc1c1ecfe9489fb51e4869af15a13fc2cd2
-* User@SHA ref: mojombo@be6a8cc1c1ecfe9489fb51e4869af15a13fc2cd2
-* User/Project@SHA: mojombo/god@be6a8cc1c1ecfe9489fb51e4869af15a13fc2cd2
-* \#Num: #1
-* User/#Num: mojombo#1
-* User/Project#Num: mojombo/god#1
-
-These are dangerous goodies though, and we need to make sure email addresses don't get mangled:
-
-My email addy is tom@github.com.
-
-Math is hard, let's go shopping
--------------------------------
-
-In first grade I learned that 5 > 3 and 2 < 7. Maybe some arrows. 1 -> 2 -> 3. 9 <- 8 <- 7.
-
-Triangles man! a^2 + b^2 = c^2
-
-We all like making lists
-------------------------
-
-The above header should be an H2 tag. Now, for a list of fruits:
-
-* Red Apples
-* Purple Grapes
-* Green Kiwifruits
-
-Let's get crazy:
-
-1.  This is a list item with two paragraphs. Lorem ipsum dolor
-    sit amet, consectetuer adipiscing elit. Aliquam hendrerit
-    mi posuere lectus.
-
-    Vestibulum enim wisi, viverra nec, fringilla in, laoreet
-    vitae, risus. Donec sit amet nisl. Aliquam semper ipsum
-    sit amet velit.
-
-2.  Suspendisse id sem consectetuer libero luctus adipiscing.
-
-What about some code **in** a list? That's insane, right?
-
-1. In Ruby you can map like this:
-
-        ['a', 'b'].map { |x| x.uppercase }
-
-2. In Rails, you can do a shortcut:
-
-        ['a', 'b'].map(&:uppercase)
-
-Some people seem to like definition lists
-
-<dl>
-  <dt>Lower cost</dt>
-  <dd>The new version of this product costs significantly less than the previous one!</dd>
-  <dt>Easier to use</dt>
-  <dd>We've changed the product so that it's much easier to use!</dd>
-</dl>
-
-I am a robot
-------------
-
-Maybe you want to print `robot` to the console 1000 times. Why not?
-
-    def robot_invasion
-      puts("robot " * 1000)
-    end
-
-You see, that was formatted as code because it's been indented by four spaces.
-
-How about we throw some angle braces and ampersands in there?
-
-    <div class="footer">
-        &copy; 2004 Foo Corporation
-    </div>
-
-Set in stone
-------------
-
-Preformatted blocks are useful for ASCII art:
-
-<pre>
-             ,-.
-    ,     ,-.   ,-.
-   / \   (   )-(   )
-   \ |  ,.>-(   )-<
-    \|,' (   )-(   )
-     Y ___`-'   `-'
-     |/__/   `-'
-     |
-     |
-     |    -hrr-
-  ___|_____________
-</pre>
-
-Playing the blame game
-----------------------
-
-If you need to blame someone, the best way to do so is by quoting them:
-
-> I, at any rate, am convinced that He does not throw dice.
-
-Or perhaps someone a little less eloquent:
-
-> I wish you'd have given me this written question ahead of time so I
-> could plan for it... I'm sure something will pop into my head here in
-> the midst of this press conference, with all the pressure of trying to
-> come up with answer, but it hadn't yet...
->
-> I don't want to sound like
-> I have made no mistakes. I'm confident I have. I just haven't - you
-> just put me under the spot here, and maybe I'm not as quick on my feet
-> as I should be in coming up with one.
-
-Table for two
--------------
-
-<table>
-  <tr>
-    <th>ID</th><th>Name</th><th>Rank</th>
-  </tr>
-  <tr>
-    <td>1</td><td>Tom Preston-Werner</td><td>Awesome</td>
-  </tr>
-  <tr>
-    <td>2</td><td>Albert Einstein</td><td>Nearly as awesome</td>
-  </tr>
-</table>
-
-Crazy linking action
---------------------
-
-I get 10 times more traffic from [Google] [1] than from
-[Yahoo] [2] or [MSN] [3].
-
-  [1]: http://google.com/        "Google"
-  [2]: http://search.yahoo.com/  "Yahoo Search"
-  [3]: http://search.msn.com/    "MSN Search"

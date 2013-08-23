@@ -9,7 +9,7 @@ define('viewmodels/work', ['viewmodels/todo', 'ot/model', 'todo'], function (Tod
 
 
     workTodoViewModel.prototype.activate = function (showMode) {
-        this.model.apiRoute = 'todo/work';
+        this.model.setRoute('todo/work');
         this.get();
 
         if (showMode) {

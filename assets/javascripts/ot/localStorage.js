@@ -4,7 +4,7 @@ define("localStorage", function () {
         var deferred = undefined;
         var self = this;
         this.get = function (key) {
-            console.log('get: ' +  (amplify.store(key)));
+            console.log(key);
             return ko.utils.parseJson(amplify.store(key));
 
         };

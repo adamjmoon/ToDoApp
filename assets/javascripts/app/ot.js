@@ -224,7 +224,7 @@ define("localStorage", function () {
         var deferred = undefined;
         var self = this;
         this.get = function (key) {
-            console.log('get: ' +  (amplify.store(key)));
+            console.log(key);
             return ko.utils.parseJson(amplify.store(key));
 
         };
@@ -243,17 +243,22 @@ define("localStorage", function () {
 define("ot/model", ['OT'], function (OT) {
     "use strict";
     function Model(route, observe, isList, subscribeCallback) {
+        var self = this;
         this.apiRoute = route || '';
         this.observe = observe;
         this.subscribeCallback = subscribeCallback;
         this.isList = isList;
-        var self = this;
 
-        self.init = function (data) {
+
+        this.init = function (data) {
             return self.put(data);
         }
 
-        self.get = function get(callback) {
+        this.setRoute = function (route) {
+            self.apiRoute = route;
+        };
+
+        this.get = function get(callback) {
 
             var result = OT.DataService.get(self.apiRoute);
             if (self.observe) {
@@ -267,18 +272,16 @@ define("ot/model", ['OT'], function (OT) {
             else {
                 return result;
             }
-
-
         };
 
-        self.post = function post(data) {
+        this.post = function post(data) {
             return OT.DataService.post(self.apiRoute, data);
         };
-        self.put = function put(data) {
-            return OT.DataService.put(self.apiRoute,data);
+        this.put = function put(data) {
+            return OT.DataService.put(self.apiRoute, data);
         };
 
-        self.mapToObservableList = function (array) {
+        this.mapToObservableList = function (array) {
             var list = ko.observableArray([]);
             _.map(array, function (dataItem) {
                 list.push(self.mapToObservables(dataItem));
@@ -286,7 +289,7 @@ define("ot/model", ['OT'], function (OT) {
             return list;
         };
 
-        self.mapToObservables = function (dataItem) {
+        this.mapToObservables = function (dataItem) {
             var obj = {};
             for (var prop in dataItem) {
                 if (observe) {

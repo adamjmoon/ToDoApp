@@ -1,18 +1,23 @@
 require.config({
-            baseUrl: "/assets/javascripts/",
-            paths: {
-                'text': 'vendor/requirejs-text/text',
-                'dataservice': 'localStorage',
-                'plugins': 'durandal/plugins'
-            }
+    baseUrl: "/assets/javascripts/",
+    paths: {
+        'text': 'vendor/requirejs-text/text',
+        'plugins': 'durandal/plugins',
+        'transitions': 'durandal/transitions'
+    }
 });
 require(['app'], function () {
         "use strict";
 
-        define('knockout', function(){ return window.ko});
-        define('jquery', function(){ return window.$});
+        define('knockout', function () {
+            return window.ko
+        });
+        define('jquery', function () {
+            return window.$
+        });
 
-        require(['durandal/app', 'durandal/viewLocator', 'durandal/system','localStorage', 'OT'], function (app, viewLocator, system, LocalStorage, OT) {
+
+        require(['durandal/app', 'durandal/viewLocator', 'durandal/system', 'localStorage', 'OT'], function (app, viewLocator, system, LocalStorage, OT) {
 
             OT.DataService = new LocalStorage();
             //>>excludeStart("build", true);
@@ -20,6 +25,7 @@ require(['app'], function () {
             //>>excludeEnd("build");
 
             app.title = 'Todo Durandal';
+
 
             app.configurePlugins({
                 router: true
@@ -31,7 +37,8 @@ require(['app'], function () {
                 viewLocator.useConvention();
 
                 //Show the app by setting the root view model for our application with a transition.
-                app.setRoot('viewmodels/shell');
+
+                app.setRoot('viewmodels/shell', 'entrance');
             });
         });
 

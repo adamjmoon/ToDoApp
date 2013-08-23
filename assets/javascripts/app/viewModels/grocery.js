@@ -6,13 +6,12 @@ define('viewmodels/grocery', ['viewmodels/todo', 'ot/model'], function (TodoView
     groceryListViewModel.inherits(TodoViewModel);
 
     var self = groceryListViewModel.prototype;
-    self.model = new Model('todo/grocery');
     self.name = 'grocery list';
 
     self.activate = function (showMode) {
 
-        this.model.apiRoute = 'todo/grocery';
-        this.get();
+        self.model.setRoute('todo/grocery');
+        self.get();
 
         if (showMode) {
             self.showMode(showMode)
