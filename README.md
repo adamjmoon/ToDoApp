@@ -31,10 +31,11 @@ Frameworks used:
 
 Setup
 =====
-Windows
+
    1. Install [`node.js`](http://nodejs.org/)
    2. Install [`growl`](http://www.growlforwindows.com/gfw/) *Note: THIS IS OPTIONAL
-   3. Run `npm_install.bat`
+   3. `Windows`: Run `npm_install.bat`
+      `Mac OS X`: Run `make install`
        * installs app node dependencies
        * installs unit test server node dependencies in test server directory
    4. Run `grunt`
