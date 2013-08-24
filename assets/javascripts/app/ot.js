@@ -218,6 +218,20 @@ define('errorlog', [],
 
         return errorlog;
     });
+define("listViewModel", ['viewModel'], function (ViewModel) {
+    function listViewModel() {}
+
+    listViewModel.prototype.map = function (array) {
+        var list = ko.observableArray([]);
+        var viewModel = new ViewModel();
+        _.map(array, function (dataItem) {
+            list.push(viewModel.map(dataItem));
+        });
+        return list;
+    };
+
+    return listViewModel;
+});
 define("localStorage", function () {
     "use strict";
     function localStorage() {
@@ -362,6 +376,55 @@ define("util", function () {
 })
 ;
 
+
+define("viewModel", ["viewModelMap"], function (ViewModelMap) {
+    function viewModel(){
+        "use strict";
+        this.observe = false;
+        this.subscribe = undefined;
+    }
+
+    viewModel.prototype.observeAll = function(){
+        "use strict";
+         viewModel.observe = true;
+    };
+
+    viewModel.prototype.subscribeAll = function(){
+        "use strict";
+        viewModel.subscribe = function(property,newValue){
+
+        }
+    };
+
+    viewModel.prototype.map = function (dataItem) {
+        var viewModelMap = new ViewModelMap();
+        return viewModelMap.map(dataItem, viewModel.observe, viewModel.subscribe);
+    };
+
+    return viewModel;
+});
+define("viewModelMap", function () {
+    var viewModelMap = function () {};
+
+    viewModelMap.prototype.map = function (dataItem, observe, subscribeCallback) {
+        var viewModel = {};
+        for (var prop in dataItem) {
+            if (observe) {
+                viewModel[prop] = ko.observable(dataItem[prop]);
+                if (subscribeCallback) {
+                    viewModel[prop].subscribe(new Function('newValue', "subscribeCallback('" + prop + "',newValue);"));
+                }
+            }
+            else {
+                viewModel[prop] = dataItem[prop];
+            }
+        }
+
+        return viewModel;
+    };
+
+    return viewModelMap;
+});
 
 define("OT", ['util', 'bindingHandlers', 'dataservice'], function (Util, BindingHandlers,dataservice) {
 

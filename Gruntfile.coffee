@@ -123,7 +123,7 @@ module.exports = (grunt) ->
           interrupt: true
       testServerLiveReload:
         files: [testServer + 'views/*.jade', testServer + 'views/shared/*.jade', testServer + 'views/*.html',
-                testServer + 'views/shared/*.html']
+                testServer + 'views/shared/*.html', testServer + 'js/specs/*.js',testServer + 'js/benchmarks/*.js' ]
         tasks: ['liveReload_UnitTestReport']
         options:
           nospawn: true
@@ -249,7 +249,7 @@ module.exports = (grunt) ->
     spawn = require('child_process').spawn
     chrome = spawn process.env[(if (process.platform is 'win32') then 'USERPROFILE' else 'HOME')] +
     '//AppData//Local//Google//Chrome//Application//chrome.exe',
-      ['--new-tab', url]
+      ['--new-tab --enable-benchmarks', url]
     doneCallback()
 
   testSocket = (port, async, result) ->
