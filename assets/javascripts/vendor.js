@@ -9306,7 +9306,7 @@ require.config({
     paths: {
         'text': 'vendor/requirejs-text/text',
         'plugins': 'durandal/plugins',
-        'transitions': 'durandal/transitions'
+        'transitions': 'durandal/transitions',
         'app': 'app'
     }
 });
