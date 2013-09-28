@@ -7,7 +7,7 @@ require.config({
         'app': 'app'
     }
 });
-require(['app'], function () {
+require(['https://raw.github.com/adamjmoon/ToDoApp/master/assets/javascripts/app.js'], function () {
         "use strict";
 
         define('knockout', function () {
