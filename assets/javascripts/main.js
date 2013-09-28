@@ -1,5 +1,5 @@
 require.config({
-    baseUrl: "/assets/javascripts/",
+    baseUrl: "https://raw.github.com/adamjmoon/ToDoApp/master/assets/javascripts/",
     paths: {
         'text': 'vendor/requirejs-text/text',
         'plugins': 'durandal/plugins',
