@@ -4,6 +4,7 @@ require.config({
         'text': 'vendor/requirejs-text/text',
         'plugins': 'durandal/plugins',
         'transitions': 'durandal/transitions'
+        'app': 'app'
     }
 });
 require(['app'], function () {
