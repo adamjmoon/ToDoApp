@@ -198,7 +198,7 @@ define(['module'], function (module) {
                 //Use a '.js' file name so that it indicates it is a
                 //script that can be loaded across domains.
                 fileName = req.toUrl(parsed.moduleName + '.' +
-                                     parsed.ext) + '.js';
+                                     parsed.ext);
 
             //Leverage own load() method to load plugin value, but only
             //write out values that do not have the strip argument,
