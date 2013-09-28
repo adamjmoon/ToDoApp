@@ -1,14 +1,18 @@
-nav.navbar.navbar-default(role='navigation')
+nav.navbar.navbar-default.col-md-12(role='navigation')
     .navbar-header
-        button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-ex1-collapse')
+
+        button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-collapse')
             span.sr-only Toggle navigation
             span.icon-bar
             span.icon-bar
             span.icon-bar
         a.navbar-brand(data-bind="attr: { href: router.navigationModel()[0].hash }") Todo Durandal
-    .collapse.navbar-collapse.navbar-ex1-collapse
+        button.navbar-toggle.refreshButton(type="button",style="cursor: pointer;",data-bind="click: function(){location.reload();}")
+            i.glyphicon.glyphicon-refresh.visible-xs.refresh.pull-left
+
+    nav.collapse.navbar-collapse.navbar-collapse(role='navigation', style="height: auto;")
         ul.nav.navbar-nav(data-bind="foreach: router.navigationModel")
-            li(data-bind='css: { active: isActive }')
+            li(data-bind='css: { active: isActive }',data-toggle='collapse', data-target='.navbar-collapse')
                 a(data-bind='attr: { href: hash }, html: title')
-        .loader.pull-right(data-bind='css: { active: router.isNavigating }')
-            i.icon-spinner.icon-2x.icon-spin
+        .loader.pull-right(data-bind='visible: router.isNavigating')
+            span.label.label-info .....

@@ -1,33 +1,96 @@
-define('viewmodels/todo', ['todo', 'ot/model', 'plugins/router'], function (Todo, Model, router) {
+define('viewmodels/todo', ['todo', 'ot/model'], function (Todo, Model) {
     "use strict";
     function todoViewModel() {
-
     }
 
     var self = todoViewModel.prototype;
+    self['showModes'] = {active: true, completed: true, all: true};
+    self.baseName = "todos";
+    self.baseRoute = "todo";
     self.model = new Model();
+    self.currentToDo = ko.observable();
+    self.currentRoute = ko.observable('');
 
+    self.currentRoute.subscribe(function (newRoute) {
+        self.getTodos();
+    });
 
-    self.current = ko.observable();
+    self.newSubList = ko.observable();
     self.showMode = ko.observable('all');
-    self.name = 'todos';
+    self.name = ko.observable(self.baseName);
     self.todos = ko.observableArray([]);
+    self.subLists = ko.observableArray([]);
+    self.subList = ko.observable();
 
+    // subscribe to subLists changes and save
+    self.subLists.subscribe(function (subLists) {
+        if (subLists && subLists.length > 0)
+            self.model.put(self.name() + '/subLists', ko.toJSON(self.subLists));
+    });
 
-    self.get = function () {
-        self.todos((ko.utils.arrayMap(self.model.get() || [], function (todo) {
-            return new Todo(todo.title, todo.completed);
-        })));
-        console.log(self.todos());
+    self.setSubLists = function (subLists) {
+        self.getSubLists(
+            function (exists) {
+                if (!exists) {
+                    self.subLists((ko.utils.arrayMap(subLists || [], function (subList) {
+                        return subList;
+                    })));
+                }
+            }
+        );
     }
 
+    self.getSubLists = function (callback) {
+        var data = self.model.get(self.name() + '/subLists');
+        self.subLists((ko.utils.arrayMap(data || [], function (subList) {
+            return subList;
+        })));
+        if (callback) {
+            if (data && data.length > 0) {
+                callback(true);
+            }
+            else {
+                callback(false);
+            }
+        }
+    };
 
+    self.getTodos = function () {
+        self.todos((ko.utils.arrayMap(self.model.get(self.currentRoute()) || [], function (todo) {
+            return new Todo(todo.title, todo.completed);
+        })));
+    };
 
     self.activate = function (showMode) {
-        self.model.setRoute('todo/basic');
-        this.get();
+        self.currentRoute(self.baseRoute);
+        self.name(self.baseName);
+        self.subLists = ko.observableArray([]);
         if (showMode) {
             self.showMode(showMode);
+        }
+    };
+
+    self.activateChild = function (name, showMode, route, subType) {
+        if (name) {
+            self.name(name);
+        }
+
+        if (route) {
+            self.currentRoute(route + (subType ? '/' + subType : ''));
+        }
+
+        if (subType) {
+            self.subList(subType);
+        }
+        else {
+            self.subList('');
+        }
+
+        if (showMode) {
+            self.showMode(showMode);
+        }
+        else {
+            self.showMode('all');
         }
     };
 
@@ -46,20 +109,27 @@ define('viewmodels/todo', ['todo', 'ot/model', 'plugins/router'], function (Todo
         }
     });
 
-    // add a new todo, when enter key is pressed
-    self.add = function () {
-        var current = self.current().trim();
-        if (current) {
-            self.todos.push(new Todo(current, false));
-            self.current('');
+    // add a new subList, when add subList button is pressed
+    self.addSubList = function () {
+        var newList = self.newSubList().trim();
+
+        if (newList.length > 0) {
+            self.subLists.push(newList);
+            self.newSubList('');
         }
     };
-
+    // add a new todo, when enter key is pressed
+    self.add = function () {
+        self.currentToDo(self.currentToDo().trim());
+        if (self.currentToDo().length > 0) {
+            self.todos.push(new Todo(self.currentToDo(), false));
+            self.currentToDo('');
+        }
+    };
     // remove a single todo
     self.remove = function (todo) {
         self.todos.remove(todo);
     };
-
     // remove all completed todos
     self.removeCompleted = function () {
         self.todos.remove(function (todo) {
@@ -109,19 +179,11 @@ define('viewmodels/todo', ['todo', 'ot/model', 'plugins/router'], function (Todo
         }
     });
 
-    // helper function to keep expressions out of markup
-    self.getLabel = function (count) {
-        return ko.utils.unwrapObservable(count) === 1 ? ' item ' : ' items ';
-    };
-
-
-    self.maxHeight = window.innerHeight - 200;
-
+    // watches changes to self.todos if length > 0 after change persist changes for currentRoute
     ko.computed(function () {
         // store a clean copy to local storage, which also creates a dependency on the observableArray and all observables in each item
-        self.model.put(ko.toJSON(self.todos)
-        )
-        ;
+        if (self.todos().length > 0)
+            self.model.put(self.currentRoute(), ko.toJSON(self.todos));
     }).extend({
             throttle: 1000
         }); // save at most once per second

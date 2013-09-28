@@ -1,37 +1,46 @@
-header#todoHeader.navbar.navbar-inverse.navbar-fixed-top.container(style="height: 120px !important;top:52px;")
-    div.navbar-inner.row
-        div.col-md-12.visible-xs(data-bind='visible: completedCount() || remainingCount()', style='display: none;')
-            span#todo-count.col-md-4
-                span.badge.badge-warning(data-bind='text: remainingCount') 0
-                span(data-bind="text: ' ' + getLabel( remainingCount ) + ' left'")
-            include shared/filters
-        h1(data-bind='text: name')
+header#todoHeader.col-md-12
+    .row.todoHeaderRow(data-bind="visible: subLists().length>0")
+        ul.nav.nav-pills.navbar-inverse.collapse.sublists-collapse.in(data-bind="foreach: subLists, visible: subLists().length>0")
+            li(data-bind='css: { active: $data == $parent.subList() }')
+                a(data-bind="attr: { href: '#' + $parent.name()  + '/' + $data  }, html: $data")
+        div.collapse.in.addlist-collapse.col-xs-12.visible-xs.form-horizontal
+            input.col-xs-10(type="text", data-bind="value: newSubList, valueUpdate: 'afterkeydown', enterKey: addSubList")
+            div.btn.btn-sm.btn-success(data-bind='click: addSubList', style="margin-left:5px;")
+                i.glyphicon.glyphicon-save
+        div.hidden-xs.form-horizontal
+            input.input-sm.customListInput(type="text",placeholder="Add Custom List",data-bind="value: newSubList, valueUpdate: 'afterkeydown', enterKey: addSubList")
+            a.btn.btn-sm.btn-success(data-bind='click: addSubList',title="Add Custom List")
+                i.glyphicon.glyphicon-save
+    h1(data-bind='text: name,visible: subLists().length===0')
+div#todoappWrapper.todoappWrapper
     div.currentToDoHeader
-    div.currentToDo
+    div.currentToDo()
         div#currentToDo.col-md-12
             input#toggle-all(data-bind='checked: allCompleted', type='checkbox')
             label(for='toggle-all') Mark all as complete
-            input#new-todo.col-md-11.col-md-offset-2(data-bind="value: current, valueUpdate: 'afterkeydown', enterKey: add", placeholder='What needs to be done?', autofocus='')
-
-
-div.container.framePushDown
-
-div#frame.container
-    div#todoapp.row(data-bind="style:{'max-height': maxHeight}",style="overflow-y:auto;max-height: 600px;height: 100%")
-        ul.col-md-12#todo-list(data-bind='foreach: filteredTodos')
+            input#new-todo.col-md-11.col-md-offset-2(data-bind="value: currentToDo, valueUpdate: 'afterkeydown', enterKey: add", placeholder='What needs to be done?', autofocus='')
+    div#todoapp
+        ul#todo-list(data-bind='foreach: filteredTodos')
             li(data-bind='css: { completed: completed, editing: editing }')
                 input.toggle(data-bind='checked: completed', type='checkbox')
                 label(data-bind='text: title, event: { dblclick: $root.editItem }')
-                button.destroy(data-bind='click: $root.remove')
+                button.destroy.btn.btn-danger.pull-right(data-bind='click: $root.remove')
                 input.edit(data-bind='value: title, valueUpdate: "afterkeydown", enterKey: $root.stopEditing, selectAndFocus: editing, event: { blur: $root.stopEditing }')
-    div#footer(data-bind='visible: completedCount() || remainingCount()', style='')
-        span#todo-count
-            strong(data-bind='text: remainingCount') 1
-            span(data-bind='text: getLabel( remainingCount )') item
-            | left
-        include shared/filters
+    div#footer.col-md-12.col-lg-12(data-bind='visible: completedCount() || remainingCount()')
+        .footer-inner
+            span#todo-count.col-md-2.col-xs-3
+                strong(data-bind='text: remainingCount') 1
+                span  left
+            span.col-md-8.col-xs-7
+                include shared/filters
+            button.pull-right.visible-xs(data-bind='visible: completedCount, click: removeCompleted')
+                | (
+                span(data-bind='text: completedCount') 0
+                | )
+            button.pull-right.hidden-xs(data-bind='visible: completedCount, click: removeCompleted')
+                | Clear completed (
+                span(data-bind='text: completedCount') 0
+                | )
 
-button.clearCompleted.col-md-12.col-xs-12.btn.btn-small(data-bind='visible: completedCount, click: removeCompleted', style='position: fixed; bottom: 0px; left: 0px;display: none;margin-top:10px;')
-    | Clear completed (
-    span(data-bind='text: completedCount') 0
-    | )
+
+

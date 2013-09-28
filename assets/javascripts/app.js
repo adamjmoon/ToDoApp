@@ -1,31 +1,3 @@
-define("models/homeTodo",['ot/model'], function (Model) {
-    "use strict";
-    function todoModel(route) {
-       this.apiRoute = 'homeTodo';
-    }
-    todoModel.inherits(Model);
-
-    return todoModel;
-});
-define("todoModel",['ot/model'], function (Model) {
-    "use strict";
-    function todoModel(route) {
-       this.apiRoute = 'todo';
-    }
-    todoModel.inherits(Model);
-
-    return todoModel;
-});
-define("models/workTodo",['ot/model'], function (Model) {
-    "use strict";
-    function WorkTodoModel(route) {
-       this.apiRoute = 'workTodo';
-    }
-    WorkTodoModel.inherits(Model);
-
-    return WorkTodoModel;
-});
-
 define("InMemory", function () {
     "use strict";
     function InMemory() {
@@ -246,20 +218,6 @@ define('errorlog', [],
 
         return errorlog;
     });
-define("listViewModel", ['viewModel'], function (ViewModel) {
-    function listViewModel() {}
-
-    listViewModel.prototype.map = function (array) {
-        var list = ko.observableArray([]);
-        var viewModel = new ViewModel();
-        _.map(array, function (dataItem) {
-            list.push(viewModel.map(dataItem));
-        });
-        return list;
-    };
-
-    return listViewModel;
-});
 define("localStorage", function () {
     "use strict";
     function localStorage() {
@@ -292,17 +250,10 @@ define("ot/model", ['OT'], function (OT) {
         this.isList = isList;
 
 
-        this.init = function (data) {
-            return self.put(data);
-        }
 
-        this.setRoute = function (route) {
-            self.apiRoute = route;
-        };
+        this.get = function get(route,callback) {
 
-        this.get = function get(callback) {
-
-            var result = OT.DataService.get(self.apiRoute);
+            var result = OT.DataService.get(route);
             if (self.observe) {
                 if (self.isList) {
                     return self.mapToObservableList(result);
@@ -316,11 +267,11 @@ define("ot/model", ['OT'], function (OT) {
             }
         };
 
-        this.post = function post(data) {
-            return OT.DataService.post(self.apiRoute, data);
+        this.post = function post(route, data) {
+            return OT.DataService.post(route, data);
         };
-        this.put = function put(data) {
-            return OT.DataService.put(self.apiRoute, data);
+        this.put = function put(route, data) {
+            return OT.DataService.put(route, data);
         };
 
         this.mapToObservableList = function (array) {
@@ -372,13 +323,13 @@ define("util", function () {
                 //Normal Inheritance
                 this.prototype = new ParentClassOrObject();
                 this.prototype.constructor = this;
-                this.prototype.parent = ParentClassOrObject.prototype;
+                this.prototype.base = ParentClassOrObject.prototype;
             }
             else {
                 //Pure Virtual Inheritance
                 this.prototype = ParentClassOrObject;
                 this.prototype.constructor = this;
-                this.prototype.parent = ParentClassOrObject;
+                this.prototype.base = ParentClassOrObject;
             }
             return this;
         };
@@ -404,55 +355,6 @@ define("util", function () {
 })
 ;
 
-
-define("viewModel", ["viewModelMap"], function (ViewModelMap) {
-    function viewModel(){
-        "use strict";
-        this.observe = false;
-        this.subscribe = undefined;
-    }
-
-    viewModel.prototype.observeAll = function(){
-        "use strict";
-         viewModel.observe = true;
-    };
-
-    viewModel.prototype.subscribeAll = function(){
-        "use strict";
-        viewModel.subscribe = function(property,newValue){
-
-        }
-    };
-
-    viewModel.prototype.map = function (dataItem) {
-        var viewModelMap = new ViewModelMap();
-        return viewModelMap.map(dataItem, viewModel.observe, viewModel.subscribe);
-    };
-
-    return viewModel;
-});
-define("viewModelMap", function () {
-    var viewModelMap = function () {};
-
-    viewModelMap.prototype.map = function (dataItem, observe, subscribeCallback) {
-        var viewModel = {};
-        for (var prop in dataItem) {
-            if (observe) {
-                viewModel[prop] = ko.observable(dataItem[prop]);
-                if (subscribeCallback) {
-                    viewModel[prop].subscribe(new Function('newValue', "subscribeCallback('" + prop + "',newValue);"));
-                }
-            }
-            else {
-                viewModel[prop] = dataItem[prop];
-            }
-        }
-
-        return viewModel;
-    };
-
-    return viewModelMap;
-});
 
 define("OT", ['util', 'bindingHandlers', 'dataservice'], function (Util, BindingHandlers,dataservice) {
 
@@ -481,52 +383,36 @@ define('todo', function () {
 });
 
 
-define('viewmodels/chores', ['viewmodels/todo', 'ot/model', 'todo'], function (TodoViewModel, Model, Todo) {
+define('viewmodels/personal', ['viewmodels/todo', 'ot/model', 'todo'], function (TodoViewModel, Model, Todo) {
     "use strict";
-    function choresTodoViewModel() {
+    function personalTodoViewModel() {
     }
 
-    choresTodoViewModel.inherits(TodoViewModel);
+    personalTodoViewModel.inherits(TodoViewModel);
 
-    choresTodoViewModel.prototype.name = 'chores todos';
+    personalTodoViewModel.prototype.name('personal');
 
-    choresTodoViewModel.prototype.activate = function (showMode) {
-        this.model.setRoute('todo/chores');
-        this.get();
+    personalTodoViewModel.prototype.activate = function (arg1, arg2) {
+        var showMode, subList, subLists;
 
-        if (showMode) {
-            choresTodoViewModel.prototype.showMode(showMode)
+        subLists = ['grocery','clean','organize','outdoor'];
+
+        if (this.base.showModes[arg1]) {
+            showMode = arg1
         }
+        else {
+            subList = arg1
+        }
+
+        if (arg2 && this.base.showModes[arg2])
+            showMode = arg2;
+
+        this.base.activateChild('personal', showMode, 'personal', subList);
+        this.base.setSubLists(subLists);
     };
 
-    return choresTodoViewModel;
+    return personalTodoViewModel;
 });
-
-
-define('viewmodels/grocery', ['viewmodels/todo', 'ot/model'], function (TodoViewModel, Model) {
-    "use strict";
-    function groceryListViewModel() {
-    }
-
-    groceryListViewModel.inherits(TodoViewModel);
-
-    var self = groceryListViewModel.prototype;
-    self.name = 'grocery list';
-
-    self.activate = function (showMode) {
-
-        self.model.setRoute('todo/grocery');
-        self.get();
-
-        if (showMode) {
-            self.showMode(showMode)
-        }
-    };
-
-
-    return groceryListViewModel;
-})
-;
 
 
 define('viewmodels/shell', ['plugins/router', 'durandal/app'], function (router, app) {
@@ -536,10 +422,9 @@ define('viewmodels/shell', ['plugins/router', 'durandal/app'], function (router,
         activate: function () {
             router.map([
                 { route: '', title: 'Todo', moduleId: 'viewmodels/todo', nav: false },
-                { route: 'todo(/:showMode)', title: 'Todo', moduleId: 'viewmodels/todo', hash: '#todo',nav: true },
-                { route: 'work(/:showMode)', title: 'Work Todo', moduleId: 'viewmodels/work', hash: '#work', nav: true },
-                { route: 'chores(/:showMode)', title: 'Chores Todo', moduleId: 'viewmodels/chores', hash: '#chores', nav: true },
-                { route: 'grocery(/:showMode)', title: 'Grocery List', moduleId: 'viewmodels/grocery', hash: '#grocery', nav: true },
+                { route: 'todo(/:showMode)', title: 'Todos', moduleId: 'viewmodels/todo', hash: '#todo',nav: true },
+                { route: 'personal(/:subType)(/:showMode)', title: 'Personal', moduleId: 'viewmodels/personal', hash: '#personal',nav: true },
+                { route: 'work(/:subType)(/:showMode)', title: 'Work', moduleId: 'viewmodels/work', hash: '#work', nav: true }
 
 
             ]).buildNavigationModel();
@@ -548,36 +433,99 @@ define('viewmodels/shell', ['plugins/router', 'durandal/app'], function (router,
         }
     };
 });
-define('viewmodels/todo', ['todo', 'ot/model', 'plugins/router'], function (Todo, Model, router) {
+define('viewmodels/todo', ['todo', 'ot/model'], function (Todo, Model) {
     "use strict";
     function todoViewModel() {
-
     }
 
     var self = todoViewModel.prototype;
+    self['showModes'] = {active: true, completed: true, all: true};
+    self.baseName = "todos";
+    self.baseRoute = "todo";
     self.model = new Model();
+    self.currentToDo = ko.observable();
+    self.currentRoute = ko.observable('');
 
+    self.currentRoute.subscribe(function (newRoute) {
+        self.getTodos();
+    });
 
-    self.current = ko.observable();
+    self.newSubList = ko.observable();
     self.showMode = ko.observable('all');
-    self.name = 'todos';
+    self.name = ko.observable(self.baseName);
     self.todos = ko.observableArray([]);
+    self.subLists = ko.observableArray([]);
+    self.subList = ko.observable();
 
+    // subscribe to subLists changes and save
+    self.subLists.subscribe(function (subLists) {
+        if (subLists && subLists.length > 0)
+            self.model.put(self.name() + '/subLists', ko.toJSON(self.subLists));
+    });
 
-    self.get = function () {
-        self.todos((ko.utils.arrayMap(self.model.get() || [], function (todo) {
-            return new Todo(todo.title, todo.completed);
-        })));
-        console.log(self.todos());
+    self.setSubLists = function (subLists) {
+        self.getSubLists(
+            function (exists) {
+                if (!exists) {
+                    self.subLists((ko.utils.arrayMap(subLists || [], function (subList) {
+                        return subList;
+                    })));
+                }
+            }
+        );
     }
 
+    self.getSubLists = function (callback) {
+        var data = self.model.get(self.name() + '/subLists');
+        self.subLists((ko.utils.arrayMap(data || [], function (subList) {
+            return subList;
+        })));
+        if (callback) {
+            if (data && data.length > 0) {
+                callback(true);
+            }
+            else {
+                callback(false);
+            }
+        }
+    };
 
+    self.getTodos = function () {
+        self.todos((ko.utils.arrayMap(self.model.get(self.currentRoute()) || [], function (todo) {
+            return new Todo(todo.title, todo.completed);
+        })));
+    };
 
     self.activate = function (showMode) {
-        self.model.setRoute('todo/basic');
-        this.get();
+        self.currentRoute(self.baseRoute);
+        self.name(self.baseName);
+        self.subLists = ko.observableArray([]);
         if (showMode) {
             self.showMode(showMode);
+        }
+    };
+
+    self.activateChild = function (name, showMode, route, subType) {
+        if (name) {
+            self.name(name);
+        }
+
+        if (route) {
+            self.currentRoute(route + (subType ? '/' + subType : ''));
+        }
+
+        if (subType) {
+            self.subList(subType);
+        }
+        else {
+            self.subList('');
+        }
+
+        if (showMode) {
+            self.showMode(showMode);
+        }
+        else {
+            self.showMode('all');
         }
     };
 
@@ -596,20 +544,27 @@ define('viewmodels/todo', ['todo', 'ot/model', 'plugins/router'], function (Todo
         }
     });
 
-    // add a new todo, when enter key is pressed
-    self.add = function () {
-        var current = self.current().trim();
-        if (current) {
-            self.todos.push(new Todo(current, false));
-            self.current('');
+    // add a new subList, when add subList button is pressed
+    self.addSubList = function () {
+        var newList = self.newSubList().trim();
+
+        if (newList.length > 0) {
+            self.subLists.push(newList);
+            self.newSubList('');
         }
     };
-
+    // add a new todo, when enter key is pressed
+    self.add = function () {
+        self.currentToDo(self.currentToDo().trim());
+        if (self.currentToDo().length > 0) {
+            self.todos.push(new Todo(self.currentToDo(), false));
+            self.currentToDo('');
+        }
+    };
     // remove a single todo
     self.remove = function (todo) {
         self.todos.remove(todo);
     };
-
     // remove all completed todos
     self.removeCompleted = function () {
         self.todos.remove(function (todo) {
@@ -659,19 +614,11 @@ define('viewmodels/todo', ['todo', 'ot/model', 'plugins/router'], function (Todo
         }
     });
 
-    // helper function to keep expressions out of markup
-    self.getLabel = function (count) {
-        return ko.utils.unwrapObservable(count) === 1 ? ' item ' : ' items ';
-    };
-
-
-    self.maxHeight = window.innerHeight - 200;
-
+    // watches changes to self.todos if length > 0 after change persist changes for currentRoute
     ko.computed(function () {
         // store a clean copy to local storage, which also creates a dependency on the observableArray and all observables in each item
-        self.model.put(ko.toJSON(self.todos)
-        )
-        ;
+        if (self.todos().length > 0)
+            self.model.put(self.currentRoute(), ko.toJSON(self.todos));
     }).extend({
             throttle: 1000
         }); // save at most once per second
@@ -685,17 +632,20 @@ define('viewmodels/work', ['viewmodels/todo', 'ot/model', 'todo'], function (Tod
     }
 
     workTodoViewModel.inherits(TodoViewModel);
-
-    workTodoViewModel.prototype.name = 'work todos';
-
-
-    workTodoViewModel.prototype.activate = function (showMode) {
-        this.model.setRoute('todo/work');
-        this.get();
-
-        if (showMode) {
-            workTodoViewModel.prototype.showMode(showMode)
+    workTodoViewModel.prototype.activate = function (arg1, arg2) {
+        var showMode, subList;
+        if (this.base.showModes[arg1]) {
+            showMode = arg1
         }
+        else {
+            subList = arg1
+        }
+
+        if (arg2 && this.base.showModes[arg2])
+            showMode = arg2;
+
+        this.base.activateChild('work', showMode, 'work', subList);
+        this.base.setSubLists(["pomodoro"]);
     };
 
     return workTodoViewModel;

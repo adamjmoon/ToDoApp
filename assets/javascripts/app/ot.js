@@ -218,20 +218,6 @@ define('errorlog', [],
 
         return errorlog;
     });
-define("listViewModel", ['viewModel'], function (ViewModel) {
-    function listViewModel() {}
-
-    listViewModel.prototype.map = function (array) {
-        var list = ko.observableArray([]);
-        var viewModel = new ViewModel();
-        _.map(array, function (dataItem) {
-            list.push(viewModel.map(dataItem));
-        });
-        return list;
-    };
-
-    return listViewModel;
-});
 define("localStorage", function () {
     "use strict";
     function localStorage() {
@@ -264,17 +250,10 @@ define("ot/model", ['OT'], function (OT) {
         this.isList = isList;
 
 
-        this.init = function (data) {
-            return self.put(data);
-        }
 
-        this.setRoute = function (route) {
-            self.apiRoute = route;
-        };
+        this.get = function get(route,callback) {
 
-        this.get = function get(callback) {
-
-            var result = OT.DataService.get(self.apiRoute);
+            var result = OT.DataService.get(route);
             if (self.observe) {
                 if (self.isList) {
                     return self.mapToObservableList(result);
@@ -288,11 +267,11 @@ define("ot/model", ['OT'], function (OT) {
             }
         };
 
-        this.post = function post(data) {
-            return OT.DataService.post(self.apiRoute, data);
+        this.post = function post(route, data) {
+            return OT.DataService.post(route, data);
         };
-        this.put = function put(data) {
-            return OT.DataService.put(self.apiRoute, data);
+        this.put = function put(route, data) {
+            return OT.DataService.put(route, data);
         };
 
         this.mapToObservableList = function (array) {
@@ -344,13 +323,13 @@ define("util", function () {
                 //Normal Inheritance
                 this.prototype = new ParentClassOrObject();
                 this.prototype.constructor = this;
-                this.prototype.parent = ParentClassOrObject.prototype;
+                this.prototype.base = ParentClassOrObject.prototype;
             }
             else {
                 //Pure Virtual Inheritance
                 this.prototype = ParentClassOrObject;
                 this.prototype.constructor = this;
-                this.prototype.parent = ParentClassOrObject;
+                this.prototype.base = ParentClassOrObject;
             }
             return this;
         };
@@ -376,55 +355,6 @@ define("util", function () {
 })
 ;
 
-
-define("viewModel", ["viewModelMap"], function (ViewModelMap) {
-    function viewModel(){
-        "use strict";
-        this.observe = false;
-        this.subscribe = undefined;
-    }
-
-    viewModel.prototype.observeAll = function(){
-        "use strict";
-         viewModel.observe = true;
-    };
-
-    viewModel.prototype.subscribeAll = function(){
-        "use strict";
-        viewModel.subscribe = function(property,newValue){
-
-        }
-    };
-
-    viewModel.prototype.map = function (dataItem) {
-        var viewModelMap = new ViewModelMap();
-        return viewModelMap.map(dataItem, viewModel.observe, viewModel.subscribe);
-    };
-
-    return viewModel;
-});
-define("viewModelMap", function () {
-    var viewModelMap = function () {};
-
-    viewModelMap.prototype.map = function (dataItem, observe, subscribeCallback) {
-        var viewModel = {};
-        for (var prop in dataItem) {
-            if (observe) {
-                viewModel[prop] = ko.observable(dataItem[prop]);
-                if (subscribeCallback) {
-                    viewModel[prop].subscribe(new Function('newValue', "subscribeCallback('" + prop + "',newValue);"));
-                }
-            }
-            else {
-                viewModel[prop] = dataItem[prop];
-            }
-        }
-
-        return viewModel;
-    };
-
-    return viewModelMap;
-});
 
 define("OT", ['util', 'bindingHandlers', 'dataservice'], function (Util, BindingHandlers,dataservice) {
 

@@ -8,17 +8,10 @@ define("ot/model", ['OT'], function (OT) {
         this.isList = isList;
 
 
-        this.init = function (data) {
-            return self.put(data);
-        }
 
-        this.setRoute = function (route) {
-            self.apiRoute = route;
-        };
+        this.get = function get(route,callback) {
 
-        this.get = function get(callback) {
-
-            var result = OT.DataService.get(self.apiRoute);
+            var result = OT.DataService.get(route);
             if (self.observe) {
                 if (self.isList) {
                     return self.mapToObservableList(result);
@@ -32,11 +25,11 @@ define("ot/model", ['OT'], function (OT) {
             }
         };
 
-        this.post = function post(data) {
-            return OT.DataService.post(self.apiRoute, data);
+        this.post = function post(route, data) {
+            return OT.DataService.post(route, data);
         };
-        this.put = function put(data) {
-            return OT.DataService.put(self.apiRoute, data);
+        this.put = function put(route, data) {
+            return OT.DataService.put(route, data);
         };
 
         this.mapToObservableList = function (array) {

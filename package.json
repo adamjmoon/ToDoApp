@@ -6,21 +6,22 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "express": "3.3.4",
-    "jade": "0.34.1",
-    "coffee-script": "1.6.3",
-    "growl": "1.7.0",
-    "grunt": "0.4.1",
-    "grunt-contrib-jshint": "0.6.2",
-    "grunt-contrib-concat": "0.3.0",
-    "grunt-contrib-cssmin": "0.6.1",
+    "express": "~3.3.4",
+    "jade": "~0.34.1",
+    "coffee-script": "~1.6.3",
+    "growl": "~1.7.0",
+    "grunt": "~0.4.1",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-cssmin": "~0.6.1",
+    "node-minify": "~0.7.2",
     "grunt-yui-compressor": "0.3.0",
     "grunt-parallel": "0.2.0",
     "grunt-istanbul": "0.2.1",
     "grunt-contrib-watch": "0.5.1",
     "ws": "0.4.27",
     "grunt-contrib-jade": "~0.8.0",
-    "grunt-contrib-requirejs": "~0.4.1"
+    "grunt-contrib-requirejs": "~0.4.1",
+    "grunt-contrib-less": "~0.7.0"
   },
   "scripts": {
     "preinstall": "npm i -g grunt-cli"

@@ -1,12 +1,14 @@
 module.exports = (grunt) ->
   contentRoot = __dirname + '/assets/'
   js = contentRoot + 'javascripts/'
+  styles = contentRoot + 'styles/'
   vendor = js + 'vendor/'
   app = js + 'app/'
   ot = js + 'ot/'
   views = js + 'app/views/'
   test = js + 'test/'
-  benchmarks = js + 'benchmarks/'
+  specs = test + 'specs/'
+  benchmarks = test + 'benchmarks/'
   testServer = test + 'testServer/'
   testServerJs = testServer + 'js/'
   coverage = testServer + 'coverage/'
@@ -22,17 +24,17 @@ module.exports = (grunt) ->
   testServerWebSocketPort = 4001
 
   grunt.loadNpmTasks 'grunt-contrib-concat'
-  grunt.loadNpmTasks 'grunt-contrib-jshint'
   grunt.loadNpmTasks 'grunt-contrib-watch'
   grunt.loadNpmTasks 'grunt-contrib-jade'
   grunt.loadNpmTasks 'grunt-yui-compressor'
   grunt.loadNpmTasks 'grunt-istanbul'
   grunt.loadNpmTasks 'grunt-parallel'
   grunt.loadNpmTasks 'grunt-contrib-requirejs'
+  grunt.loadNpmTasks 'grunt-contrib-less'
 
   # Make task shortcuts
   grunt.registerTask 'default', ['parallel:dev', 'instrument']
-  grunt.registerTask 'build', ['concat:vendor', 'concat:css', 'jshint', 'min', 'cssmin']
+  grunt.registerTask 'build', ['concat:vendor', 'concat:css', 'min']
 
   # Configure Grunt
   grunt.initConfig
@@ -54,9 +56,6 @@ module.exports = (grunt) ->
       appmin:
         src: [app + '**/*.js']
         dest: js + 'app.min.js'
-      css:
-        src: [css + 'app/*.css', css + 'bootstrap/*.css']
-        dest: css + 'app.css'
     requirejs:
       compile:
         options:
@@ -73,10 +72,19 @@ module.exports = (grunt) ->
       'app':
         'src': 'assets/javascripts/app.js'
         'dest': 'assets/javascripts/app.min.js'
-    'cssmin':
-      'dist':
-        'src': 'css/app.css'
-        'dest': 'css/app.min.css'
+    less:
+      dev:
+        options:
+          paths: ['assets/styles']
+        files: [
+          'assets/styles/app.css': 'assets/styles/app.less'
+        ]
+      prod:
+        options:
+          paths: [styles]
+          yuicompress: true
+        files:
+          'assets/styles/app.css': 'assets/styles/app.less'
     jade:
       compile:
         options:
@@ -85,7 +93,7 @@ module.exports = (grunt) ->
           pretty: true
           basedir: ''
         files: [
-          src: '.\\assets\\javascripts\\views\\*.jade'
+          src: 'assets/javascripts/views/*.jade'
           ext: ".html"
           expand: true
         ]
@@ -97,6 +105,7 @@ module.exports = (grunt) ->
         tasks: ['concat',
                 'compileSpecs',
                 'jade',
+                'less:dev',
                 'startAppServer',
                 'openApp',
                 'startUnitTestServer',
@@ -110,20 +119,26 @@ module.exports = (grunt) ->
           nospawn: true
           interrupt: true
       test:
-        files: [test + '*.coffee']
+        files: [test + '/**/*.coffee']
         tasks: ['compileSpecs', 'openUnitTestReport']
         options:
           nospawn: true
           interrupt: true
       jade:
-        files: [contentRoot + '/javascripts/views/**/*.jade']
+        files: [contentRoot + '/javascripts/views/**/*.jade', contentRoot + 'index.jade']
         tasks: ['jade', 'liveReload_App']
+        options:
+          nospawn: true
+          interrupt: true
+      less:
+        files: [styles + '**/*.less']
+        tasks: ['less:dev', 'liveReload_App']
         options:
           nospawn: true
           interrupt: true
       testServerLiveReload:
         files: [testServer + 'views/*.jade', testServer + 'views/shared/*.jade', testServer + 'views/*.html',
-                testServer + 'views/shared/*.html', testServer + 'js/specs/*.js',testServer + 'js/benchmarks/*.js' ]
+                testServer + 'views/shared/*.html', testServer + 'js/specs/*.js', testServer + 'js/benchmarks/*.js' ]
         tasks: ['liveReload_UnitTestReport']
         options:
           nospawn: true
@@ -174,22 +189,17 @@ module.exports = (grunt) ->
 
   grunt.registerTask 'compileSpecs', ->
     exec = cp.exec
-    script = test + 'coffee.cmd'
-    console.log script
-    coffee = exec(script, null, () ->
+    script = specs + 'coffee.cmd'
+    coffeeSpecs = exec(script, null, () ->
       done())
-    coffee.stdout.pipe process.stdout
-    coffee.stderr.pipe process.stderr
+    coffeeSpecs.stdout.pipe process.stdout
+    coffeeSpecs.stderr.pipe process.stderr
     done = this.async()
-
-  grunt.registerTask 'compileBenchmarks', ->
-    exec = cp.exec
     script = benchmarks + 'coffee.cmd'
-    console.log script
-    coffee = exec(script, null, () ->
+    coffeeBenchmarks = exec(script, null, () ->
       done())
-    coffee.stdout.pipe process.stdout
-    coffee.stderr.pipe process.stderr
+    coffeeBenchmarks.stdout.pipe process.stdout
+    coffeeBenchmarks.stderr.pipe process.stderr
     done = this.async()
 
   grunt.registerTask 'runTests', ->

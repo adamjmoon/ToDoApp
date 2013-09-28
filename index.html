@@ -1,35 +1,31 @@
 <!DOCTYPE html>
 <html lang="en" data-framework="knockoutjs"></html>
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="description" content="todo list with durandal">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <title>TodoMVC</title>
-    <link rel="stylesheet" href="/assets/css/app.css">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="description" content="todo list">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <title>TodoMVC</title>
+  <link rel="stylesheet" href="/assets/styles/app.css">
 </head>
 <body>
-<div id="applicationHost">
-    <div class="container">
-        <nav role="navigation" class="navbar navbar-default">
-            <div class="navbar-header">
-                <button type="button" data-toggle="collapse" data-target=".navbar-ex1-collapse" class="navbar-toggle">
-                    <span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span
-                        class="icon-bar"></span><span class="icon-bar"></span></button>
-                <a data-bind="attr: { href: router.navigationModel()[0].hash }" class="navbar-brand">Todo Durandal</a>
-            </div>
-            <div class="collapse navbar-collapse navbar-ex1-collapse">
-                <ul data-bind="foreach: router.navigationModel" class="nav navbar-nav">
-                    <li data-bind="css: { active: isActive }"><a data-bind="attr: { href: hash }, html: title"></a></li>
-                </ul>
-                <div data-bind="css: { active: router.isNavigating }" class="loader pull-right"><i
-                        class="icon-spinner icon-2x icon-spin"></i></div>
-            </div>
-        </nav>
-        <div data-bind="router: { cacheViews:false }" class="page-host"></div>
+  <div id="applicationHost">
+    <div>
+      <nav role="navigation" class="navbar navbar-default col-md-12">
+        <div class="navbar-header">
+          <button type="button" data-toggle="collapse" data-target=".navbar-ex1-collapse" class="navbar-toggle"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a data-bind="attr: { href: router.navigationModel()[0].hash }" class="navbar-brand">Todo Durandal</a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+          <ul data-bind="foreach: router.navigationModel" class="nav navbar-nav">
+            <li data-bind="css: { active: isActive }"><a data-bind="attr: { href: hash }, html: title"></a></li>
+          </ul>
+          <div data-bind="visible: router.isNavigating" class="loader pull-right"><span class="label label-info">.....</span></div>
+        </div>
+      </nav>
+      <div data-bind="router: { cacheViews:true }" class="page-host"></div>
     </div>
-</div>
-<script type="text/javascript" src="/assets/javascripts/vendor.js"></script>
+  </div>
+  <script type="text/javascript" src="/assets/javascripts/vendor.js"></script>
 </body>

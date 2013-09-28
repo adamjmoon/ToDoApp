@@ -1,7 +1,7 @@
 ul#filters
     li
-        a.selected(data-bind="css: { selected: showMode() =='all' }, attr: { href: window.location.hash.split('/')[0] + '/all' }") All
+        a.selected(data-bind="css: { selected: showMode() === 'all' }, attr: { href: '#' +currentRoute() + '/all' }") All
     li
-        a(data-bind="css: { selected: showMode() == 'active' }, attr: { href: window.location.hash.split('/')[0] + '/active' }") Active
+        a(data-bind="css: { selected: showMode() === 'active' }, attr: { href: '#' + currentRoute()+ '/active' }") Active
     li
-        a(data-bind="css: { selected: showMode() == 'completed' }, attr: { href: '/' + window.location.hash.split('/')[0] + '/completed' }") Completed
+        a(data-bind="css: { selected: showMode() === 'completed' }, attr: { href:  '#' + currentRoute() + '/completed' }") Completed
