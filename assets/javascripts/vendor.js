@@ -9307,5 +9307,5 @@ require.config({
         'app': 'app'
     }
 });
-require('app');
+require(['app']);
 
