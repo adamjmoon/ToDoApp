@@ -12179,7 +12179,7 @@ define('durandal/app',['durandal/system', 'durandal/viewEngine', 'durandal/compo
     return app;
 });
 
-define("localStorage", [],function () {
+define( 'ot/localStorage',[],function () {
     
     function localStorage() {
         var deferred = undefined;
@@ -12201,9 +12201,7 @@ define("localStorage", [],function () {
     }
     return localStorage;
 });
-define("ot/localStorage", function(){});
-
-define("util", [],function () {
+define( 'ot/util',[],function () {
     function util() {
         
 
@@ -12256,9 +12254,7 @@ define("util", [],function () {
 ;
 
 
-define("ot/util", function(){});
-
-define("bindingHandlers", [],function () {
+define( 'ot/bindingHandlers',[],function () {
     function bindingHandlers() {
         
         var ENTER_KEY = 13;
@@ -12307,9 +12303,7 @@ define("bindingHandlers", [],function () {
 
     return bindingHandlers;
 });
-define("ot/bindingHandlers", function(){});
-
-define('dataservice', [],function () {
+define('ot/dataservice',[],function () {
     function dataservice() {
         $.ajaxSetup({
             statusCode: {
@@ -12415,8 +12409,6 @@ define('dataservice', [],function () {
 
     return dataservice;
 });
-define("ot/dataservice", function(){});
-
 define( 'ot/ot',['ot/util', 'ot/bindingHandlers', 'ot/dataservice'], function (Util, BindingHandlers,dataservice) {
 
     var util  = new Util();
@@ -13734,8 +13726,6 @@ define("ot/model", ['ot/ot'], function (OT) {
         this.observe = observe;
         this.subscribeCallback = subscribeCallback;
         this.isList = isList;
-
-
 
         this.get = function get(route,callback) {
 
