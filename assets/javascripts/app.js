@@ -1,4 +1,3 @@
-
 /**
  * Durandal 2.0.0 Copyright (c) 2012 Blue Spire Consulting, Inc. All Rights Reserved.
  * Available via the MIT license.
