@@ -4130,7 +4130,7 @@ define('viewmodels/todo',['app/todo', 'ot/model', 'ot/ot'], function (Todo, Mode
         }
 
         self.getSubLists = function (callback) {
-            var data = self.model.get(self.currentRoute() + '/subLists');
+            var data = self.model.get(self.name() + '/subLists');
             self.subLists((ko.utils.arrayMap(data || [], function (subList) {
                 return subList;
             })));
@@ -4280,7 +4280,7 @@ define('viewmodels/todo',['app/todo', 'ot/model', 'ot/ot'], function (Todo, Mode
         ko.computed(function () {
             // store a clean copy to local storage, which also creates a dependency on the observableArray and all observables in each item
             if (self.todos().length > 0)
-                self.model.put(self.currentRoute(), ko.toJSON(self.todos));
+                self.model.put(self.name(), ko.toJSON(self.todos));
         }).extend({
                 throttle: 1000
             }); // save at most once per second
