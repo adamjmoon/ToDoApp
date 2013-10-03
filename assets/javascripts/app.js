@@ -4268,19 +4268,20 @@ define('viewmodels/todo',['app/todo', 'ot/model', 'ot/ot'], function (Todo, Mode
             }
         });
 
+        //subList watch and save
         ko.computed(function () {
             if (self.subLists().length > 0)
-                    self.model.put(self.currentRoute() + "/subLists", ko.toJSON(self.subLists));
+                    self.model.put(self.name() + "/subLists", ko.toJSON(self.subLists));
         }).extend({
             throttle: 1000
         }); // save at most once per second
 
-
+         //todos watch and save
         // watches changes to self.todos if length > 0 after change persist changes for currentRoute
         ko.computed(function () {
             // store a clean copy to local storage, which also creates a dependency on the observableArray and all observables in each item
             if (self.todos().length > 0)
-                self.model.put(self.name(), ko.toJSON(self.todos));
+                self.model.put(self.currentRoute(), ko.toJSON(self.todos));
         }).extend({
                 throttle: 1000
             }); // save at most once per second
