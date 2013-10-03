@@ -2492,7 +2492,7 @@ define('durandal/app',['durandal/system', 'durandal/viewEngine', 'durandal/compo
     return app;
 });
 
-define( 'ot/localStorage',[],function () {
+define('ot/localStorage',['knockout'], function (ko) {
     
     function localStorage() {
         var deferred = undefined;
@@ -2567,7 +2567,7 @@ define( 'ot/util',[],function () {
 ;
 
 
-define( 'ot/bindingHandlers',[],function () {
+define('ot/bindingHandlers',['knockout'], function (ko) {
     function bindingHandlers() {
         
         var ENTER_KEY = 13;
@@ -2616,7 +2616,7 @@ define( 'ot/bindingHandlers',[],function () {
 
     return bindingHandlers;
 });
-define('ot/dataservice',[],function () {
+define('ot/dataservice',['jquery'],function ($) {
     function dataservice() {
         $.ajaxSetup({
             statusCode: {
@@ -4208,7 +4208,7 @@ define('viewmodels/todo',['app/todo', 'ot/model', 'ot/ot'], function (Todo, Mode
         var newList = self.newSubList().trim();
 
         if (newList.length > 0) {
-            self.subLists.push(newList);
+            self.subLists(self.subLists().push(newList));
             self.newSubList('');
         }
     };
