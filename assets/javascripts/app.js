@@ -4130,7 +4130,7 @@ define('viewmodels/todo',['app/todo', 'ot/model', 'ot/ot'], function (Todo, Mode
         }
 
         self.getSubLists = function (callback) {
-            var data = self.model.get(self.name() + '/subLists');
+            var data = self.model.get(self.currentRoute() + '/subLists');
             self.subLists((ko.utils.arrayMap(data || [], function (subList) {
                 return subList;
             })));
