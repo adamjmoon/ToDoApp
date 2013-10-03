@@ -4135,7 +4135,7 @@ define('viewmodels/todo',['app/todo', 'ot/model', 'ot/ot'], function (Todo, Mode
                 return subList;
             })));
             if (callback) {
-                if (data && data.length > 0) {
+                if (data) {
                     callback(true);
                 }
                 else {
