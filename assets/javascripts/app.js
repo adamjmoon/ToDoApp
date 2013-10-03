@@ -4269,7 +4269,7 @@ define('viewmodels/todo',['app/todo', 'ot/model', 'ot/ot'], function (Todo, Mode
         });
 
         ko.computed(function () {
-            if (self.subList().length > 0)
+            if (self.subLists().length > 0)
                     self.model.put(self.currentRoute() + "/subLists", ko.toJSON(self.subLists));
         }).extend({
             throttle: 1000
