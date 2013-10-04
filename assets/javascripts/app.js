@@ -4008,7 +4008,7 @@ define('viewmodels/shell',['plugins/router', 'durandal/app'], function (router, 
         activate: function () {
             router.map([
                 { route: '', title: 'Todo', moduleId: 'viewmodels/todo', nav: false },
-                { route: 'todo(/:showMode)', title: 'Todos', moduleId: 'viewmodels/todo', hash: '#todo',nav: true },
+                { route: 'todos(/:subType)(/:showMode)', title: 'Todos', moduleId: 'viewmodels/todo', hash: '#todos',nav: true },
                 { route: 'personal(/:subType)(/:showMode)', title: 'Personal', moduleId: 'viewmodels/personal', hash: '#personal',nav: true },
                 { route: 'work(/:subType)(/:showMode)', title: 'Work', moduleId: 'viewmodels/work', hash: '#work', nav: true }
 
@@ -4100,7 +4100,7 @@ define('viewmodels/todo',['app/todo', 'ot/model', 'ot/ot'], function (Todo, Mode
     var self = todoViewModel.prototype;
     self['showModes'] = {active: true, completed: true, all: true};
     self.baseName = "todos";
-    self.baseRoute = "todo";
+    self.baseRoute = "todos";
     self.model = new Model();
     self.currentToDo = ko.observable();
     self.currentRoute = ko.observable('');
@@ -4150,36 +4150,36 @@ define('viewmodels/todo',['app/todo', 'ot/model', 'ot/ot'], function (Todo, Mode
             })));
         };
 
-        self.activate = function (showMode) {
+        self.activate = function (arg1, arg2) {
             self.currentRoute(self.baseRoute);
             self.name(self.baseName);
-            self.subLists = ko.observableArray([]);
-            if (showMode) {
-                self.showMode(showMode);
-            }
+            self.processActivateParams(arg1, arg2);
+            self.setSubLists([]);
+
         };
 
-        self.activateChild = function (name, showMode, route, subType) {
-            if (name) {
-                self.name(name);
+        self.processActivateParams = function(arg1, arg2){
+            self.subList('');
+            self.showMode('all');
+
+            if(arg1){
+                if (self.showModes[arg1]) {
+                    self.showMode(arg1);
+                }
+                else{
+                    self.subList(arg1);
+                    self.currentRoute(self.baseRoute + '/' + self.subList());
+                }
             }
 
+            if (arg2 && this.base.showModes[arg2])
+                self.showMode(arg2);
+        };
+
+        self.activateChild = function (route) {
             if (route) {
-                self.currentRoute(route + (subType ? '/' + subType : ''));
-            }
-
-            if (subType) {
-                self.subList(subType);
-            }
-            else {
-                self.subList('');
-            }
-
-            if (showMode) {
-                self.showMode(showMode);
-            }
-            else {
-                self.showMode('all');
+                self.name(route);
+                self.currentRoute(route + (self.subList() ? '/' + self.subList() : ''));
             }
         };
 
@@ -4207,6 +4207,11 @@ define('viewmodels/todo',['app/todo', 'ot/model', 'ot/ot'], function (Todo, Mode
                 self.newSubList('');
             }
         };
+        self.removeSubList = function () {
+            self.subLists.remove(self.subList());
+        };
+
+
         // add a new todo, when enter key is pressed
         self.add = function () {
             self.currentToDo(self.currentToDo().trim());
@@ -4271,7 +4276,7 @@ define('viewmodels/todo',['app/todo', 'ot/model', 'ot/ot'], function (Todo, Mode
         //subList watch and save
         ko.computed(function () {
             if (self.subLists().length > 0)
-                    self.model.put(self.name() + "/subLists", ko.toJSON(self.subLists));
+                self.model.put(self.name() + "/subLists", ko.toJSON(self.subLists));
         }).extend({
             throttle: 1000
         }); // save at most once per second
@@ -4299,22 +4304,10 @@ define( 'viewmodels/personal',['viewmodels/todo', 'ot/model', 'app/todo'], funct
     personalTodoViewModel.prototype.name('personal');
 
     personalTodoViewModel.prototype.activate = function (arg1, arg2) {
-        var showMode, subList, subLists;
 
-        subLists = ['grocery','clean','organize','outdoor'];
-
-        if (this.base.showModes[arg1]) {
-            showMode = arg1
-        }
-        else {
-            subList = arg1
-        }
-
-        if (arg2 && this.base.showModes[arg2])
-            showMode = arg2;
-
-        this.base.activateChild('personal', showMode, 'personal', subList);
-        this.base.setSubLists(subLists);
+        this.base.processActivateParams(arg1, arg2);
+        this.base.activateChild('personal');
+        this.base.setSubLists(['grocery','clean','organize','outdoor']);
     };
 
     return personalTodoViewModel;
@@ -4323,23 +4316,12 @@ define( 'viewmodels/personal',['viewmodels/todo', 'ot/model', 'app/todo'], funct
 
 define( 'viewmodels/work',['viewmodels/todo', 'ot/model', 'app/todo'], function (TodoViewModel, Model, Todo) {
     
-    function workTodoViewModel() {
-    }
+    function workTodoViewModel() {}
 
     workTodoViewModel.inherits(TodoViewModel);
     workTodoViewModel.prototype.activate = function (arg1, arg2) {
-        var showMode, subList;
-        if (this.base.showModes[arg1]) {
-            showMode = arg1
-        }
-        else {
-            subList = arg1
-        }
-
-        if (arg2 && this.base.showModes[arg2])
-            showMode = arg2;
-
-        this.base.activateChild('work', showMode, 'work', subList);
+        this.base.processActivateParams(arg1, arg2);
+        this.base.activateChild('work');
         this.base.setSubLists(["pomodoro"]);
     };
 
